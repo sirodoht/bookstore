@@ -36,6 +36,7 @@ ssh $HOST 'su - deploy -c "curl -LsSf https://astral.sh/uv/0.10.7/install.sh | s
 echo "=== Installing systemd service ==="
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 scp "$SCRIPT_DIR/bookstore.service" $HOST:/etc/systemd/system/bookstore.service
+scp "$SCRIPT_DIR/Caddyfile" $HOST:/etc/caddy/Caddyfile
 ssh $HOST 'mkdir -p /run && chown deploy:www-data /run'
 ssh $HOST 'systemctl daemon-reload'
 ssh $HOST 'systemctl enable bookstore.service'
