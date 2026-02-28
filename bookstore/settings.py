@@ -28,10 +28,13 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-h6i8@plh2dq3r8=vuq3d=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG") == "1"
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-]
+# ALLOWED_HOSTS configuration
+# In production, set HOST environment variable to your domain
+_host = os.environ.get("HOST", "")
+if _host:
+    ALLOWED_HOSTS = [_host, "127.0.0.1", "localhost"]
+else:
+    ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 
 # Application definition
@@ -147,8 +150,14 @@ SERVER_EMAIL = os.getenv("SERVER_EMAIL")
 EMAIL_SUBJECT_PREFIX = "[bookstore] "
 
 # Production safety checks
-if not DEBUG and not ADMINS:
-    raise ImproperlyConfigured(
-        "ADMIN_EMAIL environment variable is required when DEBUG=0 (production mode). "
-        "Please set ADMIN_EMAIL to receive order notifications."
-    )
+if not DEBUG:
+    if not ADMINS:
+        raise ImproperlyConfigured(
+            "ADMIN_EMAIL environment variable is required when DEBUG=0 (production mode). "
+            "Please set ADMIN_EMAIL to receive order notifications."
+        )
+    if not _host:
+        raise ImproperlyConfigured(
+            "HOST environment variable is required when DEBUG=0 (production mode). "
+            "Please set HOST to your domain (e.g., bookstore.example.com)."
+        )
