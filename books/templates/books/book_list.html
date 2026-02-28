@@ -28,6 +28,32 @@
       padding: 20px;
       box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
       transition: transform 0.1s ease;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .book-cover {
+      width: 100px;
+      height: 140px;
+      background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+      border: 2px solid var(--border-color);
+      border-radius: 3px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #adb5bd;
+    }
+
+    .book-cover::before {
+      content: "📚";
+    }
+
+    .book-details {
+      flex: 1;
+      min-width: 0;
     }
 
     .book-title {
@@ -63,9 +89,19 @@
     .book-footer {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 16px;
       flex-wrap: wrap;
+    }
+
+    .purchase-unit {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--card-bg);
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      padding: 4px;
+      box-shadow: 2px 2px 0 var(--border-color);
     }
 
     .book-price {
@@ -89,10 +125,9 @@
       font-weight: 600;
       background: var(--accent-orange);
       color: var(--text-dark);
-      border: 3px solid var(--border-color);
-      border-radius: 8px;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
       cursor: pointer;
-      box-shadow: 3px 3px 0 var(--border-color);
       transition: all 0.1s ease;
     }
 
@@ -141,26 +176,31 @@
   {% if books %}
     <ul class="book-list">
       {% for book in books %}
-        <li class="book-item">
-          <div class="book-title">{{ book.title }}</div>
-          <div class="book-meta">
-            <span>by {{ book.author }}</span>
-            <span class="separator">•</span>
-            <span>{% if book.published_year %}{{ book.published_year }}{% else %}Unknown year{% endif %}</span>
-            {% if book.isbn %}
+         <li class="book-item">
+          <div class="book-cover"></div>
+          <div class="book-details">
+            <div class="book-title">{{ book.title }}</div>
+            <div class="book-meta">
+              <span>by {{ book.author }}</span>
               <span class="separator">•</span>
-              <span>ISBN: {{ book.isbn }}</span>
+              <span>{% if book.published_year %}{{ book.published_year }}{% else %}Unknown year{% endif %}</span>
+              {% if book.isbn %}
+                <span class="separator">•</span>
+                <span>ISBN: {{ book.isbn }}</span>
+              {% endif %}
+            </div>
+            {% if book.description %}
+              <div class="book-description">{{ book.description }}</div>
             {% endif %}
-          </div>
-          {% if book.description %}
-            <div class="book-description">{{ book.description }}</div>
-          {% endif %}
-          <div class="book-footer">
-            <div class="book-price">£{{ book.price }}</div>
-            <form method="post" action="{% url 'books:book-buy' book.pk %}">
-              {% csrf_token %}
-              <button type="submit" class="buy-button">Buy Now</button>
-            </form>
+            <div class="book-footer">
+              <div class="purchase-unit">
+                <div class="book-price">£{{ book.price }}</div>
+                <form method="post" action="{% url 'books:book-buy' book.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="buy-button">Buy Now</button>
+                </form>
+              </div>
+            </div>
           </div>
         </li>
       {% endfor %}
