@@ -1,0 +1,57 @@
+[
+    {
+        "model": "books.book",
+        "pk": 1,
+        "fields": {
+            "title": "The Great Gatsby",
+            "author": "F. Scott Fitzgerald",
+            "isbn": "9780743273565",
+            "description": "A story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan, set in the Jazz Age of the 1920s.",
+            "published_year": 1925
+        }
+    },
+    {
+        "model": "books.book",
+        "pk": 2,
+        "fields": {
+            "title": "To Kill a Mockingbird",
+            "author": "Harper Lee",
+            "isbn": "9780061120084",
+            "description": "A novel about the serious issues of rape and racial inequality, told through the eyes of young Scout Finch in Depression-era Alabama.",
+            "published_year": 1960
+        }
+    },
+    {
+        "model": "books.book",
+        "pk": 3,
+        "fields": {
+            "title": "1984",
+            "author": "George Orwell",
+            "isbn": "9780451524935",
+            "description": "A dystopian social science fiction novel that follows the life of Winston Smith as he rebels against the totalitarian Party led by Big Brother.",
+            "published_year": 1949
+        }
+    },
+    {
+        "model": "books.book",
+        "pk": 4,
+        "fields": {
+            "title": "Pride and Prejudice",
+            "author": "Jane Austen",
+            "isbn": "9780141439518",
+            "description": "A romantic novel that charts the emotional development of the protagonist Elizabeth Bennet, who learns the error of making hasty judgments.",
+            "published_year": 1813
+        }
+    },
+    {
+        "model": "books.book",
+        "pk": 5,
+        "fields": {
+            "title": "The Catcher in the Rye",
+            "author": "J.D. Salinger",
+            "isbn": "9780316769488",
+            "description": "A story about teenage angst and alienation, narrated by the cynical Holden Caulfield after he is expelled from prep school.",
+            "published_year": 1951
+        }
+    }
+]

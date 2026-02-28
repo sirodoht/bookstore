@@ -1,0 +1,58 @@
+{% extends "books/base.html" %}
+
+{% block title %}Books - Book Store{% endblock %}
+
+{% block extra_css %}
+    .book-list {
+        list-style: none;
+    }
+    .book-item {
+        padding: 20px 0;
+        border-bottom: 1px solid #eee;
+    }
+    .book-item:last-child {
+        border-bottom: none;
+    }
+    .book-title {
+        font-size: 1.2em;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    .book-meta {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+    }
+    .book-description {
+        color: #555;
+        line-height: 1.5;
+    }
+    .empty-message {
+        color: #666;
+        font-style: italic;
+    }
+{% endblock extra_css %}
+
+{% block content %}
+    <h1>Books</h1>
+
+    {% if books %}
+        <ul class="book-list">
+            {% for book in books %}
+                <li class="book-item">
+                    <div class="book-title">{{ book.title }}</div>
+                    <div class="book-meta">
+                        by {{ book.author }} •
+                        {% if book.published_year %}{{ book.published_year }}{% else %}Unknown year{% endif %}
+                        {% if book.isbn %} • ISBN: {{ book.isbn }}{% endif %}
+                    </div>
+                    {% if book.description %}
+                        <div class="book-description">{{ book.description }}</div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty-message">No books available.</p>
+    {% endif %}
+{% endblock content %}
