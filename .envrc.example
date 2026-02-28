@@ -8,7 +8,10 @@ export LOCALDEV=1
 export SECRET_KEY=xxx
 
 # Production domain (required when DEBUG=0)
-# export HOST=yourdomain.com
+export HOST=localhost
+
+# Admin email for order notifications (required when DEBUG=0)
+export ADMIN_EMAIL=admin@example.com
 
 # Stripe (test mode)
 export STRIPE_SECRET_KEY=sk_test_xxx
@@ -19,4 +22,5 @@ export STRIPE_WEBHOOK_SECRET=whsec_xxx
 export EMAIL_HOST_USER=your-postmark-server-token
 export EMAIL_HOST_PASSWORD=your-postmark-server-token
 export DEFAULT_FROM_EMAIL=orders@yourdomain.com
+export EMAIL_FROM_HOST=yourdomain.com
 export SERVER_EMAIL=orders@yourdomain.com
