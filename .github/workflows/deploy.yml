@@ -1,0 +1,36 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+
+    - name: Load SSH key
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$SSH_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+      env:
+        SSH_KEY: ${{ secrets.SSH_KEY }}
+
+    - name: Deploy to server
+      run: |
+        ssh root@${{ secrets.HOST }} 'cd /var/www/bookstore && su - deploy -c "git pull origin main"'
+        ssh root@${{ secrets.HOST }} 'su - deploy -c "/var/www/bookstore/.venv/bin/python /var/www/bookstore/manage.py collectstatic --no-input"'
+        ssh root@${{ secrets.HOST }} 'su - deploy -c "/var/www/bookstore/.venv/bin/python /var/www/bookstore/manage.py migrate --no-input"'
+        ssh root@${{ secrets.HOST }} 'systemctl restart bookstore'
+        ssh root@${{ secrets.HOST }} 'systemctl restart caddy'
+      env:
+        SSH_KEY: ${{ secrets.SSH_KEY }}
