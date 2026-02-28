@@ -21,16 +21,16 @@ jobs:
         mkdir -p ~/.ssh/
         echo "$SSH_KEY" > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ vars.HOST }} >> ~/.ssh/known_hosts
       env:
         SSH_KEY: ${{ secrets.SSH_KEY }}
 
     - name: Deploy to server
       run: |
-        ssh root@${{ secrets.HOST }} 'cd /var/www/bookstore && su - deploy -c "git pull origin main"'
-        ssh root@${{ secrets.HOST }} 'su - deploy -c "/var/www/bookstore/.venv/bin/python /var/www/bookstore/manage.py collectstatic --no-input"'
-        ssh root@${{ secrets.HOST }} 'su - deploy -c "/var/www/bookstore/.venv/bin/python /var/www/bookstore/manage.py migrate --no-input"'
-        ssh root@${{ secrets.HOST }} 'systemctl restart bookstore'
-        ssh root@${{ secrets.HOST }} 'systemctl restart caddy'
+        ssh root@${{ vars.HOST }} 'cd /var/www/bookstore && su - deploy -c "git pull origin main"'
+        ssh root@${{ vars.HOST }} 'su - deploy -c "/var/www/bookstore/.venv/bin/python /var/www/bookstore/manage.py collectstatic --no-input"'
+        ssh root@${{ vars.HOST }} 'su - deploy -c "/var/www/bookstore/.venv/bin/python /var/www/bookstore/manage.py migrate --no-input"'
+        ssh root@${{ vars.HOST }} 'systemctl restart bookstore'
+        ssh root@${{ vars.HOST }} 'systemctl restart caddy'
       env:
         SSH_KEY: ${{ secrets.SSH_KEY }}
