@@ -1,46 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Book Store{% endblock %}</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-        a {
-            color: #3498db;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 4px;
-        }
-        {% block extra_css %}{% endblock %}
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-cream: #fef9e7;
+      --card-bg: #fff8e1;
+      --card-bg-alt: #e8f4f8;
+      --accent-orange: #f4a261;
+      --accent-green: #2a9d8f;
+      --accent-blue: #87ceeb;
+      --accent-pink: #ffb7b2;
+      --border-color: #1a1a2e;
+      --text-dark: #1a1a2e;
+      --text-muted: #555;
+      --shadow-offset: 4px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      line-height: 1.5;
+      color: var(--text-dark);
+      background-color: var(--bg-cream);
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .page-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Header Styles */
+    .site-header {
+      margin-bottom: 32px;
+      padding: 20px 24px;
+      background: var(--card-bg);
+      border: 3px solid var(--border-color);
+      border-radius: 3px;
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+    }
+
+    .site-title {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    /* Card Component */
+    .card {
+      background: var(--card-bg);
+      border: 3px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+    }
+
+    .card-alt {
+      background: var(--card-bg-alt);
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    /* Button Styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+    }
+
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--border-color);
+    }
+
+    .btn-primary {
+      background: var(--accent-orange);
+      color: var(--text-dark);
+    }
+
+    .btn-primary:hover {
+      background: #e69350;
+    }
+
+    .btn-secondary {
+      background: var(--card-bg-alt);
+      color: var(--text-dark);
+    }
+
+    .btn-secondary:hover {
+      background: #d8e8ec;
+    }
+
+    .btn-success {
+      background: var(--accent-green);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #238b7f;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--card-bg-alt);
+      box-shadow: 3px 3px 0 var(--border-color);
+    }
+
+    /* Price Display */
+    .price {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent-green);
+    }
+
+    /* Links */
+    a {
+      color: var(--text-dark);
+      text-decoration: none;
+      border-bottom: 2px solid var(--accent-orange);
+      transition: all 0.15s ease;
+    }
+
+    a:hover {
+      background: var(--accent-orange);
+      padding: 2px 4px;
+      margin: -2px -4px;
+    }
+
+    /* Form Elements */
+    input[type="text"],
+    select {
+      padding: 12px 16px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1rem;
+      background: var(--card-bg-alt);
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 3px 3px 0 var(--border-color);
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      box-shadow: 2px 2px 0 var(--border-color);
+      transform: translate(1px, 1px);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    {% block extra_css %}{% endblock %}
+  </style>
 </head>
 <body>
-    <div class="container">
-        {% block content %}{% endblock %}
-    </div>
+  <div class="page-wrapper">
+    {% block content %}{% endblock %}
+  </div>
 </body>
 </html>
