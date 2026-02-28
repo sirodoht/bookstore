@@ -1,0 +1,9 @@
+{% extends "books/base.html" %}
+
+{% block title %}Purchase Cancelled - Book Store{% endblock %}
+
+{% block content %}
+    <h1>Purchase Cancelled</h1>
+    <p>Your purchase was cancelled. The book is still available if you'd like to try again.</p>
+    <p><a href="{% url 'books:book-list' %}">← Back to book list</a></p>
+{% endblock content %}

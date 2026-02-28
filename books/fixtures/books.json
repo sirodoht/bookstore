@@ -7,7 +7,9 @@
             "author": "F. Scott Fitzgerald",
             "isbn": "9780743273565",
             "description": "A story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan, set in the Jazz Age of the 1920s.",
-            "published_year": 1925
+            "published_year": 1925,
+            "price": "10.00",
+            "is_available": true
         }
     },
     {
@@ -18,7 +20,9 @@
             "author": "Harper Lee",
             "isbn": "9780061120084",
             "description": "A novel about the serious issues of rape and racial inequality, told through the eyes of young Scout Finch in Depression-era Alabama.",
-            "published_year": 1960
+            "published_year": 1960,
+            "price": "10.00",
+            "is_available": true
         }
     },
     {
@@ -29,7 +33,9 @@
             "author": "George Orwell",
             "isbn": "9780451524935",
             "description": "A dystopian social science fiction novel that follows the life of Winston Smith as he rebels against the totalitarian Party led by Big Brother.",
-            "published_year": 1949
+            "published_year": 1949,
+            "price": "10.00",
+            "is_available": true
         }
     },
     {
@@ -40,7 +46,9 @@
             "author": "Jane Austen",
             "isbn": "9780141439518",
             "description": "A romantic novel that charts the emotional development of the protagonist Elizabeth Bennet, who learns the error of making hasty judgments.",
-            "published_year": 1813
+            "published_year": 1813,
+            "price": "10.00",
+            "is_available": true
         }
     },
     {
@@ -51,7 +59,9 @@
             "author": "J.D. Salinger",
             "isbn": "9780316769488",
             "description": "A story about teenage angst and alienation, narrated by the cynical Holden Caulfield after he is expelled from prep school.",
-            "published_year": 1951
+            "published_year": 1951,
+            "price": "10.00",
+            "is_available": true
         }
     }
 ]

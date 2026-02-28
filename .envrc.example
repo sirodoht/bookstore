@@ -1,5 +1,19 @@
 # Show exceptions and tracebacks on errors
 export DEBUG=1
 
+# Development mode (set to 1 for console email output instead of real SMTP)
+export LOCALDEV=1
+
 # Used by Django to encrypt session login cookies
 export SECRET_KEY=xxx
+
+# Stripe (test mode)
+export STRIPE_SECRET_KEY=sk_test_xxx
+export STRIPE_PUBLISHABLE_KEY=pk_test_xxx
+export STRIPE_WEBHOOK_SECRET=whsec_xxx
+
+# Email (Postmark)
+export EMAIL_HOST_USER=your-postmark-server-token
+export EMAIL_HOST_PASSWORD=your-postmark-server-token
+export DEFAULT_FROM_EMAIL=orders@yourdomain.com
+export SERVER_EMAIL=orders@yourdomain.com

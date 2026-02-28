@@ -1,0 +1,9 @@
+{% extends "books/base.html" %}
+
+{% block title %}Purchase Successful - Book Store{% endblock %}
+
+{% block content %}
+    <h1>Thank You!</h1>
+    <p>Your purchase was successful. A confirmation email has been sent to you.</p>
+    <p><a href="{% url 'books:book-list' %}">← Back to book list</a></p>
+{% endblock content %}

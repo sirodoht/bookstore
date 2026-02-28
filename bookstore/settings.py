@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -120,3 +122,33 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+# Stripe
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
+
+# Email
+LOCALDEV = os.getenv("LOCALDEV") == "1"
+ADMINS = [os.getenv("ADMIN_EMAIL")] if os.getenv("ADMIN_EMAIL") else []
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+if LOCALDEV:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.postmarkapp.com"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = 587
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+EMAIL_FROM_HOST = os.getenv("EMAIL_FROM_HOST")
+SERVER_EMAIL = os.getenv("SERVER_EMAIL")
+EMAIL_SUBJECT_PREFIX = "[bookstore] "
+
+# Production safety checks
+if not DEBUG and not ADMINS:
+    raise ImproperlyConfigured(
+        "ADMIN_EMAIL environment variable is required when DEBUG=0 (production mode). "
+        "Please set ADMIN_EMAIL to receive order notifications."
+    )
