@@ -1,8 +1,11 @@
 """Django views for books app."""
 
+import logging
+
 import stripe
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
@@ -10,6 +13,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, TemplateView
 
 from .models import Book, Order
+
+logger = logging.getLogger(__name__)
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -79,47 +84,117 @@ def stripe_webhook(request):
     payload = request.body
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
 
+    if not settings.STRIPE_WEBHOOK_SECRET:
+        logger.error("STRIPE_WEBHOOK_SECRET is not configured")
+        return HttpResponse("Webhook secret not configured", status=500)
+
+    if not sig_header:
+        logger.warning("Missing Stripe signature header")
+        return HttpResponse("Missing signature header", status=400)
+
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
         )
-    except ValueError:
-        return HttpResponse(status=400)
-    except stripe.error.SignatureVerificationError:
-        return HttpResponse(status=400)
+        logger.info(
+            "Received Stripe webhook event: %s (id: %s)", event["type"], event["id"]
+        )
+    except ValueError as e:
+        logger.error("Invalid payload: %s", e)
+        return HttpResponse("Invalid payload", status=400)
+    except stripe.error.SignatureVerificationError as e:
+        logger.error("Signature verification failed: %s", e)
+        return HttpResponse("Invalid signature", status=400)
+    except Exception as e:
+        logger.error("Unexpected error during webhook construction: %s", e)
+        return HttpResponse("Webhook processing error", status=500)
 
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
-        book_id = session["metadata"]["book_id"]
-        customer_email = session["customer_details"]["email"]
+        session_id = session.get("id", "unknown")
 
-        book = Book.objects.get(id=book_id)
-        book.is_available = False
-        book.save()
+        try:
+            metadata = session.get("metadata", {})
+            book_id = metadata.get("book_id")
+            customer_details = session.get("customer_details", {})
+            customer_email = customer_details.get("email")
 
-        # Create order record with book snapshot
-        shipping_details = session.get("shipping_details", {})
-        address = shipping_details.get("address", {})
+            if not book_id:
+                logger.error(
+                    "Missing book_id in session metadata (session: %s)", session_id
+                )
+                return HttpResponse("Missing book_id in metadata", status=400)
 
-        order = Order.objects.create(
-            book_title=book.title,
-            book_author=book.author,
-            book_isbn=book.isbn,
-            book_price=book.price,
-            stripe_session_id=session["id"],
-            customer_email=customer_email,
-            amount_paid=session["amount_total"] / 100,
-            shipping_name=shipping_details.get("name", ""),
-            shipping_address_line1=address.get("line1", ""),
-            shipping_address_line2=address.get("line2", ""),
-            shipping_city=address.get("city", ""),
-            shipping_state=address.get("state", ""),
-            shipping_postal_code=address.get("postal_code", ""),
-            shipping_country=address.get("country", ""),
-        )
+            if not customer_email:
+                logger.error(
+                    "Missing customer email in session (session: %s)", session_id
+                )
+                return HttpResponse("Missing customer email", status=400)
 
-        send_purchase_confirmation(order)
-        send_admin_notification(order)
+            try:
+                book = Book.objects.get(id=book_id)
+            except Book.DoesNotExist:
+                logger.error("Book not found: %s (session: %s)", book_id, session_id)
+                return HttpResponse(f"Book {book_id} not found", status=404)
+
+            if not book.is_available:
+                logger.warning(
+                    "Book %s is already unavailable (session: %s)", book_id, session_id
+                )
+
+            shipping_details = session.get("shipping_details", {})
+            address = shipping_details.get("address", {})
+            amount_total = session.get("amount_total")
+
+            if amount_total is None:
+                logger.error(
+                    "Missing amount_total in session (session: %s)", session_id
+                )
+                return HttpResponse("Missing amount_total", status=400)
+
+            try:
+                with transaction.atomic():
+                    book.is_available = False
+                    book.save()
+                    logger.info("Marked book %s as unavailable", book_id)
+
+                    order = Order.objects.create(
+                        book_title=book.title,
+                        book_author=book.author,
+                        book_isbn=book.isbn,
+                        book_price=book.price,
+                        stripe_session_id=session_id,
+                        customer_email=customer_email,
+                        amount_paid=amount_total / 100,
+                        shipping_name=shipping_details.get("name", ""),
+                        shipping_address_line1=address.get("line1", ""),
+                        shipping_address_line2=address.get("line2", ""),
+                        shipping_city=address.get("city", ""),
+                        shipping_state=address.get("state", ""),
+                        shipping_postal_code=address.get("postal_code", ""),
+                        shipping_country=address.get("country", ""),
+                    )
+                    logger.info("Created order %s for book %s", order.id, book_id)
+
+                send_purchase_confirmation(order)
+                logger.info("Sent purchase confirmation for order %s", order.id)
+
+                send_admin_notification(order)
+                logger.info("Sent admin notification for order %s", order.id)
+
+            except Exception as e:
+                logger.exception(
+                    "Failed to process order (session: %s): %s", session_id, e
+                )
+                return HttpResponse("Order processing failed", status=500)
+
+        except Exception as e:
+            logger.exception(
+                "Unexpected error processing checkout.session.completed (session: %s): %s",
+                session_id,
+                e,
+            )
+            return HttpResponse("Processing error", status=500)
 
     return JsonResponse({"status": "success"})
 
