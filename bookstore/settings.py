@@ -148,16 +148,3 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 EMAIL_FROM_HOST = os.getenv("EMAIL_FROM_HOST")
 SERVER_EMAIL = os.getenv("SERVER_EMAIL")
 EMAIL_SUBJECT_PREFIX = "[bookstore] "
-
-# Production safety checks
-if not DEBUG:
-    if not ADMINS:
-        raise ImproperlyConfigured(
-            "ADMIN_EMAIL environment variable is required when DEBUG=0 (production mode). "
-            "Please set ADMIN_EMAIL to receive order notifications."
-        )
-    if not _host:
-        raise ImproperlyConfigured(
-            "HOST environment variable is required when DEBUG=0 (production mode). "
-            "Please set HOST to your domain (e.g., bookstore.example.com)."
-        )
