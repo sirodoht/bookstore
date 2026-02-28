@@ -1,0 +1,18 @@
+[Unit]
+Description=bookstore
+After=network.target
+
+[Service]
+Type=simple
+User=deploy
+Group=www-data
+WorkingDirectory=/var/www/bookstore
+ExecStart=/var/www/schoolmemories/.venv/bin/gunicorn -b 127.0.0.1:5000 -w 4 --access-logfile - --error-logfile - bookstore.wsgi
+ExecReload=/bin/kill -HUP $MAINPID
+Environment="DEBUG=0"
+Environment="LOCALDEV=0"
+TimeoutSec=15
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
