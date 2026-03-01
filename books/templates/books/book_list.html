@@ -3,6 +3,23 @@
 {% block title %}Theo's Bookshop{% endblock %}
 
 {% block extra_css %}
+    .admin-bar {
+      margin: -24px -24px 20px -14px;
+      background: var(--card-bg);
+    }
+
+    .admin-bar a {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border: none;
+    }
+
+    .admin-bar a:hover {
+      background: transparent;
+      color: var(--accent-green);
+    }
+
     .header-row {
       display: flex;
       align-items: center;
@@ -175,9 +192,14 @@
 {% endblock extra_css %}
 
 {% block content %}
+  {% if user.is_authenticated and user.is_staff %}
+    <div class="admin-bar">
+      <a href="{% url 'books:book-create' %}">+ Add new book</a>
+    </div>
+  {% endif %}
   <header class="site-header">
     <div class="header-row">
-      <h1 class="site-title">Theo’s Bookshop</h1>
+      <h1 class="site-title">Theo's Bookshop</h1>
     </div>
     <div class="shipping-notice">
       <span class="badge">Free shipping to the UK</span>
