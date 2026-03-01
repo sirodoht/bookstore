@@ -167,6 +167,66 @@
     .field-error select:focus {
       box-shadow: 2px 2px 0 #e63946;
     }
+
+    /* AI Analysis Loading Styles */
+    .ai-loading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: var(--card-bg-alt);
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 3px 3px 0 var(--border-color);
+      margin-top: 16px;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .ai-loading.hidden {
+      display: none;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .cover-image-section {
+      border: 3px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 24px;
+      background: var(--card-bg-alt);
+      margin-bottom: 20px;
+    }
+
+    .cover-image-section.has-image {
+      border-style: solid;
+      border-color: var(--accent-color);
+    }
+
+    .hidden-fields {
+      display: none;
+    }
+
+    .hidden-fields.visible {
+      display: block;
+    }
+
+    .form-disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
 {% endblock extra_css %}
 
 {% block content %}
@@ -179,47 +239,55 @@
     </header>
 
     <div class="card">
-      <form method="post" enctype="multipart/form-data" novalidate>
+      <form method="post" enctype="multipart/form-data" novalidate id="book-form">
         {% csrf_token %}
 
-        <div class="form-group {% if form.title.errors %}field-error{% endif %}">
-          <label for="{{ form.title.id_for_label }}">Title</label>
-          {{ form.title }}
-          {% if form.title.errors %}
-            <ul class="errorlist">
-              {% for error in form.title.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
+        <div class="cover-image-section" id="cover-section">
+          <div class="form-group {% if form.cover_image.errors %}field-error{% endif %}">
+            <label for="{{ form.cover_image.id_for_label }}">Cover Image</label>
+            {{ form.cover_image }}
+            <p class="help-text">Upload a book cover image to automatically extract details using AI.</p>
+            {% if form.cover_image.errors %}
+              <ul class="errorlist">
+                {% for error in form.cover_image.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+
+          <div class="ai-loading hidden" id="ai-loading">
+            <div class="spinner"></div>
+            <span>Analyzing cover with AI...</span>
+          </div>
         </div>
 
-        <div class="form-group {% if form.cover_image.errors %}field-error{% endif %}">
-          <label for="{{ form.cover_image.id_for_label }}">Cover Image</label>
-          {{ form.cover_image }}
-          <p class="help-text">Upload a book cover image. It will be cropped to 13:18 ratio with center gravity.</p>
-          {% if form.cover_image.errors %}
-            <ul class="errorlist">
-              {% for error in form.cover_image.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
+        <div class="hidden-fields" id="book-details-fields">
+          <div class="form-group {% if form.title.errors %}field-error{% endif %}">
+            <label for="{{ form.title.id_for_label }}">Title</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+              <ul class="errorlist">
+                {% for error in form.title.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
 
-        <div class="form-group {% if form.author.errors %}field-error{% endif %}">
+          <div class="form-group {% if form.author.errors %}field-error{% endif %}">
             <label for="{{ form.author.id_for_label }}">Author</label>
             {{ form.author }}
             {% if form.author.errors %}
-                <ul class="errorlist">
+              <ul class="errorlist">
                 {% for error in form.author.errors %}
-                    <li>{{ error }}</li>
+                  <li>{{ error }}</li>
                 {% endfor %}
-                </ul>
+              </ul>
             {% endif %}
-        </div>
+          </div>
 
-        <div class="form-group {% if form.isbn.errors %}field-error{% endif %}">
+          <div class="form-group {% if form.isbn.errors %}field-error{% endif %}">
             <label for="{{ form.isbn.id_for_label }}">ISBN</label>
             {{ form.isbn }}
             {% if form.isbn.errors %}
@@ -229,63 +297,153 @@
                 {% endfor %}
               </ul>
             {% endif %}
-        </div>
+          </div>
 
-        <div class="form-group {% if form.description.errors %}field-error{% endif %}">
-          <label for="{{ form.description.id_for_label }}">Description</label>
-          {{ form.description }}
-          {% if form.description.errors %}
-            <ul class="errorlist">
-              {% for error in form.description.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-
-        <div class="form-row">
-          <div class="form-group {% if form.published_year.errors %}field-error{% endif %}">
-            <label for="{{ form.published_year.id_for_label }}">Published Year</label>
-            {{ form.published_year }}
-            {% if form.published_year.errors %}
+          <div class="form-group {% if form.description.errors %}field-error{% endif %}">
+            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+            {% if form.description.errors %}
               <ul class="errorlist">
-                {% for error in form.published_year.errors %}
+                {% for error in form.description.errors %}
                   <li>{{ error }}</li>
                 {% endfor %}
               </ul>
             {% endif %}
           </div>
 
-          <div class="form-group {% if form.price.errors %}field-error{% endif %}">
-            <label for="{{ form.price.id_for_label }}">Price (£)</label>
-            {{ form.price }}
-            {% if form.price.errors %}
+          <div class="form-row">
+            <div class="form-group {% if form.published_year.errors %}field-error{% endif %}">
+              <label for="{{ form.published_year.id_for_label }}">Published Year</label>
+              {{ form.published_year }}
+              {% if form.published_year.errors %}
+                <ul class="errorlist">
+                  {% for error in form.published_year.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+
+            <div class="form-group {% if form.price.errors %}field-error{% endif %}">
+              <label for="{{ form.price.id_for_label }}">Price (£)</label>
+              {{ form.price }}
+              {% if form.price.errors %}
+                <ul class="errorlist">
+                  {% for error in form.price.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="form-group checkbox-group {% if form.is_available.errors %}field-error{% endif %}">
+            {{ form.is_available }}
+            <label for="{{ form.is_available.id_for_label }}">Available for purchase</label>
+            {% if form.is_available.errors %}
               <ul class="errorlist">
-                {% for error in form.price.errors %}
+                {% for error in form.is_available.errors %}
                   <li>{{ error }}</li>
                 {% endfor %}
               </ul>
             {% endif %}
           </div>
-        </div>
 
-        <div class="form-group checkbox-group {% if form.is_available.errors %}field-error{% endif %}">
-          {{ form.is_available }}
-          <label for="{{ form.is_available.id_for_label }}">Available for purchase</label>
-          {% if form.is_available.errors %}
-            <ul class="errorlist">
-              {% for error in form.is_available.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-success">Add Book</button>
-          <a href="{% url 'books:book-list' %}" class="back-link">← Back to Book List</a>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-success">Add Book</button>
+            <a href="{% url 'books:book-list' %}" class="back-link">← Back to Book List</a>
+          </div>
         </div>
       </form>
     </div>
   </div>
+
+  <script>
+    (function() {
+      const coverImageInput = document.getElementById('{{ form.cover_image.id_for_label }}');
+      const coverSection = document.getElementById('cover-section');
+      const aiLoading = document.getElementById('ai-loading');
+      const bookDetailsFields = document.getElementById('book-details-fields');
+      const bookForm = document.getElementById('book-form');
+
+      const fieldMapping = {
+        'title': '{{ form.title.id_for_label }}',
+        'author': '{{ form.author.id_for_label }}',
+        'isbn': '{{ form.isbn.id_for_label }}',
+        'description': '{{ form.description.id_for_label }}',
+        'published_year': '{{ form.published_year.id_for_label }}'
+      };
+
+      function setFieldValue(fieldId, value) {
+        const field = document.getElementById(fieldId);
+        if (field && value) {
+          field.value = value;
+        }
+      }
+
+      function showFields() {
+        bookDetailsFields.classList.add('visible');
+      }
+
+      function hideLoading() {
+        aiLoading.classList.add('hidden');
+        coverSection.classList.remove('form-disabled');
+      }
+
+      function showLoading() {
+        aiLoading.classList.remove('hidden');
+        coverSection.classList.add('form-disabled');
+      }
+
+      async function analyzeCover(file) {
+        const formData = new FormData();
+        formData.append('cover_image', file);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        try {
+          showLoading();
+
+          const response = await fetch('{% url "books:analyze-cover" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+            }
+          });
+
+          hideLoading();
+
+          if (!response.ok) {
+            console.error('Failed to analyze cover:', response.statusText);
+            showFields();
+            return;
+          }
+
+          const data = await response.json();
+          console.log('AI Analysis result:', data);
+
+          Object.keys(fieldMapping).forEach(key => {
+            setFieldValue(fieldMapping[key], data[key] || '');
+          });
+
+          showFields();
+
+        } catch (error) {
+          console.error('Error analyzing cover:', error);
+          hideLoading();
+          showFields();
+        }
+      }
+
+      coverImageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          coverSection.classList.add('has-image');
+          analyzeCover(file);
+        } else {
+          coverSection.classList.remove('has-image');
+        }
+      });
+    })();
+  </script>
 {% endblock content %}

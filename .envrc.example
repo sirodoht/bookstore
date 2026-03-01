@@ -18,6 +18,9 @@ export STRIPE_SECRET_KEY=sk_test_xxx
 export STRIPE_PUBLISHABLE_KEY=pk_test_xxx
 export STRIPE_WEBHOOK_SECRET=whsec_xxx
 
+# OpenAI (for book cover analysis)
+export OPENAI_API_KEY=sk-xxx
+
 # Email (Postmark)
 export EMAIL_HOST_USER=your-postmark-server-token
 export EMAIL_HOST_PASSWORD=your-postmark-server-token

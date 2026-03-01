@@ -1,9 +1,13 @@
 """Django views for books app."""
 
+import base64
+import json
 import logging
 
+import openai
 import stripe
 from django.conf import settings
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.mail import send_mail
 from django.db import transaction
@@ -19,6 +23,7 @@ from .models import Book, Order
 logger = logging.getLogger(__name__)
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+openai.api_key = settings.OPENAI_API_KEY
 
 
 class BookListView(ListView):
@@ -319,3 +324,135 @@ Please fulfill this order at your earliest convenience.
         settings.ADMINS,
         fail_silently=False,
     )
+
+
+@user_passes_test(lambda u: u.is_staff)
+def analyze_cover(request):
+    """Analyze book cover image using OpenAI and extract book details."""
+    if request.method != "POST":
+        logger.warning(
+            "analyze_cover: Received non-POST request from user %s", request.user
+        )
+        return JsonResponse({"error": "Only POST requests allowed"}, status=405)
+
+    if "cover_image" not in request.FILES:
+        logger.warning(
+            "analyze_cover: No cover_image in request from user %s", request.user
+        )
+        return JsonResponse({"error": "No image provided"}, status=400)
+
+    cover_image = request.FILES["cover_image"]
+
+    logger.info(
+        "analyze_cover: Processing image '%s' for user %s",
+        cover_image.name,
+        request.user,
+    )
+
+    try:
+        image_data = cover_image.read()
+        base64_image = base64.b64encode(image_data).decode("utf-8")
+
+        logger.debug(
+            "analyze_cover: Image encoded successfully (%d bytes)", len(image_data)
+        )
+    except Exception as e:
+        logger.error("analyze_cover: Failed to read/encode image: %s", e, exc_info=True)
+        return JsonResponse({"error": "Failed to process image"}, status=500)
+
+    if not settings.OPENAI_API_KEY:
+        logger.error("analyze_cover: OPENAI_API_KEY not configured")
+        return JsonResponse({"error": "OpenAI not configured"}, status=500)
+
+    prompt = """Analyze this book cover image and extract the following information:
+
+1. Title: The main title of the book
+2. Author: The author's name (may be on the spine or cover)
+3. ISBN: The ISBN number (usually 10 or 13 digits, often on the back or copyright page)
+4. Description: A brief description or tagline visible on the cover
+5. Published Year: The publication year if visible (often on the copyright page or back cover)
+
+Return ONLY a JSON object with these exact keys:
+- title (string, empty if not found)
+- author (string, empty if not found)
+- isbn (string, empty if not found)
+- description (string, empty if not found)
+- published_year (string, empty if not found)
+
+If any field is not visible or cannot be determined, use an empty string as the value.
+Do not include markdown formatting, just the raw JSON."""
+
+    try:
+        logger.info(
+            "analyze_cover: Sending request to OpenAI for user %s", request.user
+        )
+
+        client = openai.OpenAI()
+        response = client.chat.completions.create(
+            model="gpt-5.2",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            },
+                        },
+                    ],
+                }
+            ],
+            max_tokens=500,
+        )
+
+        content = response.choices[0].message.content
+        logger.debug("analyze_cover: OpenAI response: %s", content)
+
+        try:
+            data = json.loads(content)
+
+            required_keys = ["title", "author", "isbn", "description", "published_year"]
+            for key in required_keys:
+                if key not in data:
+                    logger.warning(
+                        "analyze_cover: Missing key '%s' in OpenAI response", key
+                    )
+                    data[key] = ""
+
+            logger.info(
+                "analyze_cover: Successfully extracted data for user %s - title: '%s', author: '%s'",
+                request.user,
+                data.get("title", "")[:50],
+                data.get("author", "")[:50],
+            )
+
+            return JsonResponse(data)
+
+        except json.JSONDecodeError as e:
+            logger.error(
+                "analyze_cover: Failed to parse OpenAI JSON response: %s\nContent: %s",
+                e,
+                content,
+            )
+            return JsonResponse(
+                {
+                    "title": "",
+                    "author": "",
+                    "isbn": "",
+                    "description": "",
+                    "published_year": "",
+                    "error": "Failed to parse AI response",
+                }
+            )
+
+    except openai.APIError as e:
+        logger.error("analyze_cover: OpenAI API error: %s", e, exc_info=True)
+        return JsonResponse({"error": "AI service error"}, status=502)
+    except openai.RateLimitError as e:
+        logger.error("analyze_cover: OpenAI rate limit exceeded: %s", e, exc_info=True)
+        return JsonResponse({"error": "AI service rate limited"}, status=429)
+    except Exception as e:
+        logger.exception("analyze_cover: Unexpected error: %s", e)
+        return JsonResponse({"error": "Analysis failed"}, status=500)

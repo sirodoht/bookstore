@@ -135,6 +135,9 @@ STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
 
+# OpenAI
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
 # Email
 LOCALDEV = os.getenv("LOCALDEV") == "1"
 ADMINS = [os.getenv("ADMIN_EMAIL")] if os.getenv("ADMIN_EMAIL") else []

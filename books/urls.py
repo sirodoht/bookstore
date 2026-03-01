@@ -17,4 +17,5 @@ urlpatterns = [
         "checkout/cancel/", views.CheckoutCancelView.as_view(), name="checkout-cancel"
     ),
     path("stripe/webhook/", views.stripe_webhook, name="stripe-webhook"),
+    path("analyze-cover/", views.analyze_cover, name="analyze-cover"),
 ]
