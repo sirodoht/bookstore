@@ -16,6 +16,18 @@ class BookAdmin(admin.ModelAdmin):
     ]
     search_fields = ["title", "author", "isbn"]
     list_filter = ["published_year", "author", "is_available"]
+    list_editable = ["is_available"]
+    actions = ["make_available", "make_unavailable"]
+
+    @admin.action(description="Mark selected books as available")
+    def make_available(self, request, queryset):
+        updated = queryset.update(is_available=True)
+        self.message_user(request, f"{updated} book(s) marked as available.")
+
+    @admin.action(description="Mark selected books as unavailable")
+    def make_unavailable(self, request, queryset):
+        updated = queryset.update(is_available=False)
+        self.message_user(request, f"{updated} book(s) marked as unavailable.")
 
 
 @admin.register(Order)
