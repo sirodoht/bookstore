@@ -140,6 +140,12 @@ class CheckoutCancelView(TemplateView):
     template_name = "books/checkout_cancel.html"
 
 
+class AboutView(TemplateView):
+    """Display about page."""
+
+    template_name = "books/about.html"
+
+
 class BookBatchUploadView(UserPassesTestMixin, TemplateView):
     """Display batch upload form for multiple book covers (admin only)."""
 

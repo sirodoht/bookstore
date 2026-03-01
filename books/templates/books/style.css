@@ -12,17 +12,12 @@
     --shadow-offset: 4px;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
     font-family: "Space Grotesk", system-ui, sans-serif;
     line-height: 1.5;
     color: var(--text-dark);
     background-color: var(--bg-cream);
+    margin: 0;
     padding: 24px;
     min-height: 100vh;
 }
@@ -111,7 +106,7 @@ body {
 .site-title {
     font-size: 2rem;
     font-weight: 700;
-    margin-bottom: 0;
+    margin: 0;
     letter-spacing: -0.02em;
 }
 
@@ -243,6 +238,10 @@ select {
     border-radius: 8px;
     box-shadow: 3px 3px 0 var(--border-color);
     outline: none;
+}
+
+ul {
+    padding-left: 20px;
 }
 
 /* Empty State */

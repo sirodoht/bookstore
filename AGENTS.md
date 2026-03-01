@@ -93,15 +93,8 @@ from .models import Book, Order
 ### Templates (Django HTML)
 
 - Use Djade formatter for HTML templates
-- 2-space indentation in templates
+- 4-space indentation in templates
 - Use `{% url %}` tag for all internal links
-- Block names: lowercase with hyphens (e.g., `{% block extra_css %}`)
-
-### Environment Variables
-
-- Use `os.environ.get()` with defaults for optional settings
-- Use `os.getenv()` for optional values
-- Never hardcode secrets; always use env vars
 
 ## Commit Message Style
 

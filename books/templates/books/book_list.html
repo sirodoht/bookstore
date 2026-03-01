@@ -2,384 +2,128 @@
 
 {% block title %}Theo's Bookshop{% endblock %}
 
-{% block extra_css %}
-    .admin-bar {
-      margin: -12px 0 16px 0;
-      display: flex;
-      gap: 24px;
-      align-items: center;
-    }
-
-    .admin-bar a {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      border: none;
-    }
-
-    .admin-bar a:hover {
-      background: transparent;
-      color: var(--accent-green);
-    }
-
-    .header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .shipping-notice {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .book-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .book-item {
-      background: var(--card-bg-alt);
-      border: 3px solid var(--border-color);
-      border-radius: 3px;
-      padding: 20px;
-      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
-      transition: transform 0.1s ease;
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-    }
-
-    .book-cover {
-      width: 130px;
-      height: 180px;
-      background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-      border-radius: 3px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      color: #adb5bd;
-      overflow: hidden;
-      cursor: zoom-in;
-    }
-
-    .book-cover img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .book-cover-placeholder::before {
-      content: "📚";
-    }
-
-    .book-details {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .book-title {
-      font-size: 1.15rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-      line-height: 1.3;
-    }
-
-    .book-meta {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    .book-meta span {
-      display: inline-block;
-    }
-
-    .book-meta .separator {
-      margin: 0 8px;
-      color: #999;
-    }
-
-    .book-description {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.5;
-      margin-bottom: 16px;
-    }
-
-    .book-review {
-      background: rgba(42, 157, 143, 0.5);
-      border: 3px solid var(--border-color);
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .book-review-label {
-      font-weight: 600;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-      color: var(--text-dark);
-    }
-
-    .book-footer {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .purchase-unit {
-      display: inline-flex;
-      align-items: stretch;
-      background: var(--card-bg);
-      border: 3px solid var(--border-color);
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 3px 3px 0 var(--border-color);
-    }
-
-    .purchase-unit form {
-      margin: 0;
-      display: flex;
-    }
-
-    .book-price {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      color: #d4856a;
-      padding: 10px 16px;
-      background: rgba(212, 133, 106, 0.15);
-      border-right: 3px solid var(--border-color);
-      display: flex;
-      align-items: center;
-    }
-
-    .buy-button {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 20px;
-      flex: 1;
-      min-width: 0;
-      font-family: "Space Grotesk", sans-serif;
-      font-size: 0.9rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      background: var(--accent-orange);
-      color: var(--text-dark);
-      border: none;
-      cursor: pointer;
-      transition: background 0.15s ease, transform 0.1s ease;
-    }
-
-    .buy-button:hover {
-      background: #e69350;
-    }
-
-    .buy-button::before {
-      content: "→";
-      font-weight: 700;
-      opacity: 0.9;
-    }
-
-    .empty-message {
-      text-align: center;
-      padding: 60px 24px;
-      color: var(--text-muted);
-      font-style: italic;
-      font-size: 1.1rem;
-    }
-
-    .empty-message::before {
-      content: "(ノ_<。)";
-      display: block;
-      font-style: normal;
-      font-size: 2rem;
-      margin-bottom: 16px;
-      color: var(--text-muted);
-    }
-
-    @media (max-width: 600px) {
-      .book-item {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 16px;
-      }
-
-      .book-cover {
-        width: 160px;
-        height: 220px;
-      }
-
-      .book-details {
-        width: 100%;
-      }
-
-      .book-meta {
-        font-size: 0.75rem;
-      }
-
-      .book-meta .separator {
-        margin: 0 4px;
-      }
-
-      .book-footer {
-        justify-content: center;
-      }
-
-      .buy-button {
-        min-width: 100px;
-      }
-    }
-
-    /* Lightbox styles */
-    .lightbox {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      cursor: zoom-out;
-    }
-
-    .lightbox.active {
-      display: flex;
-    }
-
-    .lightbox img {
-      max-width: 90vw;
-      max-height: 90vh;
-      object-fit: contain;
-      border-radius: 4px;
-    }
-{% endblock extra_css %}
-
 {% block content %}
-  {% if user.is_authenticated and user.is_staff %}
-    <div class="admin-bar">
-      <a href="{% url 'books:book-create' %}">+ Add new book</a>
-      <a href="{% url 'books:batch-upload' %}">Batch upload</a>
-      <a href="/admin/books/book/">Books</a>
-      <a href="/admin/books/order/">Orders</a>
-    </div>
-  {% endif %}
-  <header class="site-header">
-    <div class="header-row">
-      <h1 class="site-title">Theo's Bookshop</h1>
-    </div>
-    <div class="shipping-notice">
-      <span class="badge">second hand books</span>
-      <span class="badge">free shipping to the UK</span>
-    </div>
-  </header>
 
-  {% if books %}
-    <ul class="book-list">
-      {% for book in books %}
-         <li class="book-item">
-          {% if book.cover_image %}
-            <div class="book-cover">
-              <img src="{{ book.cover_image.url }}" alt="{{ book.title }} cover">
-            </div>
-          {% else %}
-            <div class="book-cover book-cover-placeholder"></div>
-          {% endif %}
-          <div class="book-details">
+{% if user.is_authenticated and user.is_staff %}
+<div class="admin-bar">
+    <a href="{% url 'books:book-create' %}">+ Add new book</a>
+    <a href="{% url 'books:batch-upload' %}">Batch upload</a>
+    <a href="/admin/books/book/">Books</a>
+    <a href="/admin/books/order/">Orders</a>
+</div>
+{% endif %}
+
+<header class="site-header">
+    <div class="header-row">
+        <h1 class="site-title">Theo's Bookshop</h1>
+    </div>
+</header>
+
+<div class="header-meta-box">
+    second hand books / free shipping to the UK /
+    <a href="{% url 'books:about' %}">about the bookshop</a>
+</div>
+
+{% if books %}
+<div class="book-list">
+    {% for book in books %}
+    <div class="book-item">
+        {% if book.cover_image %}
+        <div class="book-cover">
+            <img
+                src="{{ book.cover_image.url }}"
+                alt="{{ book.title }} cover"
+            />
+        </div>
+        {% else %}
+        <div class="book-cover book-cover-placeholder"></div>
+        {% endif %}
+        <div class="book-details">
             <div class="book-title">
-              {{ book.title }}
-              {% if user.is_authenticated and user.is_staff %}
-                <a href="/admin/books/book/{{ book.pk }}/change/" style="font-size: 0.7rem; font-weight: normal; color: var(--text-muted); margin-left: 8px;">(edit)</a>
-              {% endif %}
+                {{ book.title }} {% if user.is_authenticated and user.is_staff %}
+                <a
+                    href="/admin/books/book/{{ book.pk }}/change/"
+                    style="
+                        font-size: 0.7rem;
+                        font-weight: normal;
+                        color: var(--text-muted);
+                        margin-left: 8px;
+                    "
+                    >(edit)</a
+                >
+                {% endif %}
             </div>
             <div class="book-meta">
-              <span>by {{ book.author }}</span>
-              {% if book.published_year %}
+                <span>by {{ book.author }}</span>
+                {% if book.published_year %}
                 <span class="separator">•</span>
                 <span>{{ book.published_year }}</span>
-              {% endif %}
-              {% if book.isbn %}
+                {% endif %} {% if book.isbn %}
                 <span class="separator">•</span>
                 <span>ISBN: {{ book.isbn }}</span>
-              {% endif %}
+                {% endif %}
             </div>
             {% if book.description %}
-              <div class="book-description">{{ book.description }}</div>
-            {% endif %}
-            {% if book.review %}
-              <div class="book-review">
+            <div class="book-description">{{ book.description }}</div>
+            {% endif %} {% if book.review %}
+            <div class="book-review">
                 <div class="book-review-label">why buy?</div>
                 {{ book.review }}
-              </div>
+            </div>
             {% endif %}
             <div class="book-footer">
-              <div class="purchase-unit">
-                <div class="book-price">£{{ book.price }}</div>
-                <form method="post" action="{% url 'books:book-buy' book.pk %}">
-                  {% csrf_token %}
-                  <button type="submit" class="buy-button">Buy Now</button>
-                </form>
-              </div>
+                <div class="purchase-unit">
+                    <div class="book-price">£{{ book.price }}</div>
+                    <form method="post" action="{% url 'books:book-buy' book.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="buy-button">
+                            Buy Now
+                        </button>
+                    </form>
+                </div>
             </div>
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <div class="card">
-      <p class="empty-message">No books available.</p>
+        </div>
     </div>
-  {% endif %}
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <p class="empty-message">No books available.</p>
+</div>
+{% endif %}
 
-  <!-- Lightbox overlay -->
-  <div class="lightbox" id="lightbox">
-    <img src="" alt="Zoomed cover">
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const lightbox = document.getElementById('lightbox');
-      const lightboxImg = lightbox.querySelector('img');
-      const covers = document.querySelectorAll('.book-cover img');
-
-      covers.forEach(function(img) {
-        img.addEventListener('click', function(e) {
-          e.preventDefault();
-          lightboxImg.src = this.src;
-          lightbox.classList.add('active');
-        });
-      });
-
-      lightbox.addEventListener('click', function() {
-        this.classList.remove('active');
-        lightboxImg.src = '';
-      });
-
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          lightbox.classList.remove('active');
-          lightboxImg.src = '';
-        }
-      });
-    });
-  </script>
+<!-- Lightbox overlay -->
+<div class="lightbox" id="lightbox">
+    <img src="" alt="Zoomed cover" />
+</div>
 {% endblock content %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImg = lightbox.querySelector("img");
+        const covers = document.querySelectorAll(".book-cover img");
+
+        covers.forEach(function (img) {
+            img.addEventListener("click", function (e) {
+                e.preventDefault();
+                lightboxImg.src = this.src;
+                lightbox.classList.add("active");
+            });
+        });
+
+        lightbox.addEventListener("click", function () {
+            this.classList.remove("active");
+            lightboxImg.src = "";
+        });
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+                lightbox.classList.remove("active");
+                lightboxImg.src = "";
+            }
+        });
+    });
+</script>
+{% endblock scripts %}
