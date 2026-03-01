@@ -248,7 +248,7 @@ def batch_upload_stream(request):
                     author=analysis.get("author", "") or "Unknown Author",
                     description=analysis.get("description", ""),
                     published_year=published_year,
-                    price=Decimal("10.00"),
+                    price=Decimal("4.00"),
                     is_available=False,
                 )
 

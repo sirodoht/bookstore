@@ -25,7 +25,7 @@ class Book(models.Model):
     description = models.TextField(blank=True)
     review = models.TextField(blank=True, help_text="Public review of the book")
     published_year = models.IntegerField(null=True, blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, default=10.00)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=4.00)
     is_available = models.BooleanField(default=True)
     cover_image = models.ImageField(
         upload_to=book_cover_path,
