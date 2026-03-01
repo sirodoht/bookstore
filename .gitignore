@@ -10,3 +10,6 @@ db.sqlite3
 
 # generated static
 /static/
+
+# user uploaded media
+/media/
