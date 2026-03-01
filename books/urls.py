@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import api, views, webhooks
 
 app_name = "books"
 
@@ -24,6 +24,6 @@ urlpatterns = [
     path(
         "checkout/cancel/", views.CheckoutCancelView.as_view(), name="checkout-cancel"
     ),
-    path("stripe/webhook/", views.stripe_webhook, name="stripe-webhook"),
-    path("analyze-cover/", views.analyze_cover, name="analyze-cover"),
+    path("stripe/webhook/", webhooks.stripe_webhook, name="stripe-webhook"),
+    path("analyze-cover/", api.analyze_cover, name="analyze-cover"),
 ]
