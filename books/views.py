@@ -367,7 +367,7 @@ def analyze_cover(request):
 1. Title: The main title of the book
 2. Author: The author's name (may be on the spine or cover)
 3. ISBN: The ISBN number (usually 10 or 13 digits, often on the back or copyright page)
-4. Description: A brief description or tagline visible on the cover
+4. Description: A one-sentence blurb or description of what the book is about
 5. Published Year: The publication year if visible (often on the copyright page or back cover)
 
 Return ONLY a JSON object with these exact keys:
