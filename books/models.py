@@ -120,6 +120,7 @@ class Order(models.Model):
     shipping_city = models.CharField(max_length=100, blank=True)
     shipping_state = models.CharField(max_length=100, blank=True)
     shipping_postal_code = models.CharField(max_length=20, blank=True)
+    shipping_country = models.CharField(max_length=100, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
