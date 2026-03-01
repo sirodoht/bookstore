@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.mail import send_mail
 from django.db import IntegrityError, transaction
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import View
@@ -123,11 +123,17 @@ def stripe_webhook(request):
 
     if not settings.STRIPE_WEBHOOK_SECRET:
         logger.error("STRIPE_WEBHOOK_SECRET is not configured")
-        return HttpResponse("Webhook secret not configured", status=500)
+        return JsonResponse(
+            {"status": "error", "message": "Webhook secret not configured"},
+            status=500,
+        )
 
     if not sig_header:
         logger.warning("Missing Stripe signature header")
-        return HttpResponse("Missing signature header", status=400)
+        return JsonResponse(
+            {"status": "error", "message": "Missing signature header"},
+            status=400,
+        )
 
     try:
         event = stripe.Webhook.construct_event(
@@ -138,13 +144,22 @@ def stripe_webhook(request):
         )
     except ValueError as e:
         logger.error("Invalid payload: %s", e)
-        return HttpResponse("Invalid payload", status=400)
+        return JsonResponse(
+            {"status": "error", "message": "Invalid payload"},
+            status=400,
+        )
     except stripe.SignatureVerificationError as e:
         logger.error("Signature verification failed: %s", e)
-        return HttpResponse("Invalid signature", status=400)
+        return JsonResponse(
+            {"status": "error", "message": "Invalid signature"},
+            status=400,
+        )
     except Exception as e:
         logger.error("Unexpected error during webhook construction: %s", e)
-        return HttpResponse("Webhook processing error", status=500)
+        return JsonResponse(
+            {"status": "error", "message": "Webhook processing error"},
+            status=500,
+        )
 
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
@@ -161,21 +176,30 @@ def stripe_webhook(request):
                     "Missing book_id in session metadata (session: %s)", session_id
                 )
                 # Return 200 to acknowledge - missing metadata is a permanent error
-                return HttpResponse("Missing book_id in metadata", status=200)
+                return JsonResponse(
+                    {"status": "error", "message": "Missing book_id in metadata"},
+                    status=200,
+                )
 
             if not customer_email:
                 logger.error(
                     "Missing customer email in session (session: %s)", session_id
                 )
                 # Return 200 to acknowledge - missing email is a permanent error
-                return HttpResponse("Missing customer email", status=200)
+                return JsonResponse(
+                    {"status": "error", "message": "Missing customer email"},
+                    status=200,
+                )
 
             # Idempotency check: skip if order already processed
             if Order.objects.filter(stripe_session_id=session_id).exists():
                 logger.info(
                     "Order already processed for session %s, returning 200", session_id
                 )
-                return HttpResponse("Order already processed", status=200)
+                return JsonResponse(
+                    {"status": "success", "message": "Order already processed"},
+                    status=200,
+                )
 
             shipping_details = session.get("shipping_details", {})
             address = shipping_details.get("address", {})
@@ -185,7 +209,10 @@ def stripe_webhook(request):
                 logger.error(
                     "Missing amount_total in session (session: %s)", session_id
                 )
-                return HttpResponse("Missing amount_total", status=400)
+                return JsonResponse(
+                    {"status": "error", "message": "Missing amount_total"},
+                    status=400,
+                )
 
             try:
                 with transaction.atomic():
@@ -196,7 +223,13 @@ def stripe_webhook(request):
                             "Book not found: %s (session: %s)", book_id, session_id
                         )
                         # Return 200 to acknowledge - book was deleted, no retry will help
-                        return HttpResponse(f"Book {book_id} not found", status=200)
+                        return JsonResponse(
+                            {
+                                "status": "error",
+                                "message": f"Book {book_id} not found",
+                            },
+                            status=200,
+                        )
 
                     if not book.is_available:
                         logger.warning(
@@ -258,8 +291,12 @@ A refund has been {"processed" if refund_status == "succeeded" else "attempted"}
                                     "Failed to send admin notification: %s", str(e)
                                 )
 
-                        return HttpResponse(
-                            "Book already sold - refund issued", status=200
+                        return JsonResponse(
+                            {
+                                "status": "success",
+                                "message": "Book already sold - refund issued",
+                            },
+                            status=200,
                         )
 
                     # Price mismatch check: log warning but proceed with order
@@ -301,13 +338,19 @@ A refund has been {"processed" if refund_status == "succeeded" else "attempted"}
                     "IntegrityError: order for session %s already exists (race condition), returning 200",
                     session_id,
                 )
-                return HttpResponse("Order already processed", status=200)
+                return JsonResponse(
+                    {"status": "success", "message": "Order already processed"},
+                    status=200,
+                )
 
             except Exception as e:
                 logger.exception(
                     "Failed to process order (session: %s): %s", session_id, e
                 )
-                return HttpResponse("Order processing failed", status=500)
+                return JsonResponse(
+                    {"status": "error", "message": "Order processing failed"},
+                    status=500,
+                )
 
             # Send emails outside the transaction to avoid 500 on SMTP failure
             try:
@@ -326,7 +369,10 @@ A refund has been {"processed" if refund_status == "succeeded" else "attempted"}
                     "Failed to send admin notification for order %s", order.id
                 )
 
-            return HttpResponse("OK", status=200)
+            return JsonResponse(
+                {"status": "success", "message": "Order processed successfully"},
+                status=200,
+            )
 
         except Exception as e:
             logger.exception(
@@ -334,9 +380,12 @@ A refund has been {"processed" if refund_status == "succeeded" else "attempted"}
                 session_id,
                 e,
             )
-            return HttpResponse("Processing error", status=500)
+            return JsonResponse(
+                {"status": "error", "message": "Processing error"},
+                status=500,
+            )
 
-    return JsonResponse({"status": "success"})
+    return JsonResponse({"status": "success", "message": "Event received"})
 
 
 def send_purchase_confirmation(order):
