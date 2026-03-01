@@ -290,6 +290,21 @@ A refund has been {"processed" if refund_status == "succeeded" else "attempted"}
                                     "Failed to send admin notification: %s", str(e)
                                 )
 
+                        # Notify customer about the refund
+                        try:
+                            send_race_condition_refund_notification(
+                                book, customer_email, amount_total, refund_status
+                            )
+                            logger.info(
+                                "Customer refund notification sent for session %s",
+                                session_id,
+                            )
+                        except Exception as e:
+                            logger.error(
+                                "Failed to send customer refund notification: %s",
+                                str(e),
+                            )
+
                         return JsonResponse(
                             {
                                 "status": "success",
@@ -478,6 +493,43 @@ Price: £{order.amount_paid:.2f}
         body,
         settings.DEFAULT_FROM_EMAIL,
         settings.ADMINS,
+        fail_silently=False,
+    )
+
+
+def send_race_condition_refund_notification(
+    book, customer_email, amount_total, refund_status
+):
+    """Send notification to customer when refunded due to race condition."""
+    subject = f"[bookstore] Order Canceled - {book.title}"
+    amount = Decimal(amount_total) / Decimal(100)
+    body = f"""We're sorry, but we were unable to complete your purchase.
+
+BOOK DETAILS
+-----
+Title: {book.title}
+Author: {book.author}
+Price: £{amount:.2f}
+
+WHAT HAPPENED
+-----
+Unfortunately, this book was sold to another customer just moments before your order was completed. We know this is disappointing, and we sincerely apologize for the inconvenience.
+
+REFUND INFORMATION
+-----
+You have been issued a full refund of £{amount:.2f}. The refund will appear on your payment method within 5 to 10 business days, depending on your bank or card issuer.
+
+If you have any questions or need assistance, please contact us.
+
+Thank you for your understanding,
+The Bookstore Team
+"""
+
+    send_mail(
+        subject,
+        body,
+        settings.DEFAULT_FROM_EMAIL,
+        [customer_email],
         fail_silently=False,
     )
 
