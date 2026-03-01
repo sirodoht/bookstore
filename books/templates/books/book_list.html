@@ -114,6 +114,25 @@
       margin-bottom: 16px;
     }
 
+    .book-review {
+      background: rgba(42, 157, 143, 0.5);
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .book-review-label {
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      color: var(--text-dark);
+    }
+
     .book-footer {
       display: flex;
       align-items: center;
@@ -260,7 +279,7 @@
     <div class="admin-bar">
       <a href="{% url 'books:book-create' %}">+ Add new book</a>
       <a href="{% url 'books:batch-upload' %}">Batch upload</a>
-      <a href="/admin/books/book/">Admin Books</a>
+      <a href="/admin/books/book/">Books</a>
       <a href="/admin/books/order/">Orders</a>
     </div>
   {% endif %}
@@ -302,7 +321,10 @@
               <div class="book-description">{{ book.description }}</div>
             {% endif %}
             {% if book.review %}
-              <div class="book-review">{{ book.review }}</div>
+              <div class="book-review">
+                <div class="book-review-label">why buy?</div>
+                {{ book.review }}
+              </div>
             {% endif %}
             <div class="book-footer">
               <div class="purchase-unit">
