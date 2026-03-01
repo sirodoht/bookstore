@@ -8,7 +8,7 @@
   <style>
     :root {
       --bg-cream: #fef9e7;
-      --card-bg: #fff8e1;
+      --card-bg: #fff6d8;
       --card-bg-alt: #e8f4f8;
       --accent-orange: #f4a261;
       --accent-green: #2a9d8f;
@@ -34,10 +34,10 @@
       padding: 24px;
       min-height: 100vh;
     }
-    @media(max-width: 600px) {
-        body {
-            padding: 16px 12px;
-        }
+    @media (max-width: 600px) {
+      body {
+        padding: 16px;
+      }
     }
 
     .page-wrapper {
@@ -45,14 +45,75 @@
       margin: 0 auto;
     }
 
-    /* Header Styles */
+    /* Header Styles - Traditional decorative frame */
     .site-header {
       margin-bottom: 32px;
-      padding: 20px 24px;
+      padding: 38px 48px 48px 48px;
       background: var(--card-bg);
-      border: 3px solid var(--border-color);
-      border-radius: 3px;
-      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+      position: relative;
+      /* Layered traditional frame: inner cream line, main dark border, 3D shadow */
+      border: 4px solid var(--border-color);
+      box-shadow:
+        inset 0 0 0 2px rgba(254, 249, 231, 0.9),
+        6px 6px 0 var(--border-color),
+        8px 8px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    @media (max-width: 600px) {
+      .site-header {
+        padding: 24px 32px 32px 32px;
+      }
+    }
+
+    /* Decorative corner brackets - traditional frame detail */
+    .site-header::before,
+    .site-header::after {
+      content: "";
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-color: var(--border-color);
+      border-style: solid;
+      border-width: 0;
+    }
+
+    .site-header::before {
+      top: 8px;
+      left: 8px;
+      border-top-width: 3px;
+      border-left-width: 3px;
+    }
+
+    .site-header::after {
+      top: 8px;
+      right: 8px;
+      border-top-width: 3px;
+      border-right-width: 3px;
+    }
+
+    /* Bottom corner brackets */
+    .site-header > div:last-of-type::before,
+    .site-header > div:last-of-type::after {
+      content: "";
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-color: var(--border-color);
+      border-style: solid;
+      border-width: 0;
+      bottom: 8px;
+    }
+
+    .site-header > div:last-of-type::before {
+      left: 8px;
+      border-bottom-width: 3px;
+      border-left-width: 3px;
+    }
+
+    .site-header > div:last-of-type::after {
+      right: 8px;
+      border-bottom-width: 3px;
+      border-right-width: 3px;
     }
 
     .site-title {
@@ -69,6 +130,12 @@
       border-radius: 3px;
       padding: 24px;
       box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 20px 16px;
+      }
     }
 
     .card-alt {
@@ -137,17 +204,18 @@
       background: #238b7f;
     }
 
-    /* Badge - informational tags, not interactive */
+    /* Badge - informational tags, soft green label (non-interactive) */
     .badge {
       display: inline-block;
-      padding: 6px 12px;
-      font-family: "JetBrains Mono", monospace;
+      padding: 5px 12px;
+      font-family: "Space Grotesk", sans-serif;
       font-size: 0.8rem;
       font-weight: 500;
+      letter-spacing: 0.02em;
       color: var(--text-muted);
       background: rgba(42, 157, 143, 0.12);
       border: 1px solid rgba(42, 157, 143, 0.3);
-      border-radius: 999px;
+      border-radius: 16px;
       cursor: default;
       user-select: none;
     }
