@@ -100,7 +100,7 @@ class Order(models.Model):
     # Book snapshot (copied at time of purchase)
     book_title = models.CharField(max_length=200)
     book_author = models.CharField(max_length=200)
-    book_isbn = models.CharField(max_length=13)
+    book_isbn = models.CharField(max_length=13, blank=True)
     book_price = models.DecimalField(max_digits=10, decimal_places=2)
 
     # Order details
