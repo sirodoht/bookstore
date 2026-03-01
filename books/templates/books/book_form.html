@@ -95,6 +95,12 @@
       .form-row {
         grid-template-columns: 1fr;
       }
+
+      .form-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
     }
 
     .help-text {
@@ -110,6 +116,18 @@
       margin-top: 32px;
       padding-top: 24px;
       border-top: 2px solid var(--border-color);
+    }
+
+    @media (max-width: 600px) {
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .form-actions .btn,
+      .form-actions .back-link {
+        width: 100%;
+        justify-content: center;
+      }
     }
 
     .back-link {
