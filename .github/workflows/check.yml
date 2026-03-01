@@ -20,5 +20,7 @@ jobs:
       run: curl -LsSf https://astral.sh/uv/0.10.7/install.sh | sh
     - name: Run Python linting
       run: uv run ruff check
+    - name: Run Python format check
+      run: uv run ruff format --check
     - name: Run HTML linting
       run: uv run djade books/templates/**/*.html --check
