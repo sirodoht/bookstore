@@ -362,22 +362,20 @@ def analyze_cover(request):
         logger.error("analyze_cover: OPENAI_API_KEY not configured")
         return JsonResponse({"error": "OpenAI not configured"}, status=500)
 
-    prompt = """Analyze this book cover image and extract the following information:
+    prompt = """Analyze this book cover image and provide the following information:
 
 1. Title: The main title of the book
-2. Author: The author's name (may be on the spine or cover)
-3. ISBN: The ISBN number (usually 10 or 13 digits, often on the back or copyright page)
-4. Description: A one-sentence blurb or description of what the book is about
-5. Published Year: The publication year if visible (often on the copyright page or back cover)
+2. Author: The author's name
+3. Description: A one-sentence blurb or description of what the book is about
+4. Published Year: The publication year
 
 Return ONLY a JSON object with these exact keys:
-- title (string, empty if not found)
-- author (string, empty if not found)
-- isbn (string, empty if not found)
-- description (string, empty if not found)
-- published_year (string, empty if not found)
+- title (string, empty if not known)
+- author (string, empty if not known)
+- description (string, empty if not known)
+- published_year (string, empty if not known)
 
-If any field is not visible or cannot be determined, use an empty string as the value.
+If any field cannot be determined, use an empty string as the value.
 Do not include markdown formatting, just the raw JSON."""
 
     try:
@@ -411,7 +409,7 @@ Do not include markdown formatting, just the raw JSON."""
         try:
             data = json.loads(content)
 
-            required_keys = ["title", "author", "isbn", "description", "published_year"]
+            required_keys = ["title", "author", "description", "published_year"]
             for key in required_keys:
                 if key not in data:
                     logger.warning(
