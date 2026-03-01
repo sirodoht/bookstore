@@ -61,7 +61,7 @@
     .card {
       background: var(--card-bg);
       border: 3px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: 3px;
       padding: 24px;
       box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
     }
@@ -132,17 +132,19 @@
       background: #238b7f;
     }
 
-    /* Badge */
+    /* Badge - informational tags, not interactive */
     .badge {
       display: inline-block;
-      padding: 8px 14px;
+      padding: 6px 12px;
       font-family: "JetBrains Mono", monospace;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 500;
-      border: 3px solid var(--border-color);
-      border-radius: 8px;
-      background: var(--card-bg-alt);
-      box-shadow: 3px 3px 0 var(--border-color);
+      color: var(--text-muted);
+      background: rgba(42, 157, 143, 0.12);
+      border: 1px solid rgba(42, 157, 143, 0.3);
+      border-radius: 999px;
+      cursor: default;
+      user-select: none;
     }
 
     /* Price Display */
