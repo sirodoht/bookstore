@@ -85,8 +85,7 @@ class BookPurchaseView(View):
                     }
                 ],
                 mode="payment",
-                success_url=request.build_absolute_uri("/checkout/success/")
-                + "?session_id={CHECKOUT_SESSION_ID}",
+                success_url=request.build_absolute_uri("/checkout/success/"),
                 cancel_url=request.build_absolute_uri("/checkout/cancel/"),
                 metadata={"book_id": book.id},
                 shipping_address_collection={
