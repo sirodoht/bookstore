@@ -208,9 +208,10 @@ def stripe_webhook(request):
                 logger.error(
                     "Missing amount_total in session (session: %s)", session_id
                 )
+                # Return 200 to acknowledge - won't gain amount_total on retry
                 return JsonResponse(
                     {"status": "error", "message": "Missing amount_total"},
-                    status=400,
+                    status=200,
                 )
 
             try:
