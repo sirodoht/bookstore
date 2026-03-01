@@ -305,7 +305,12 @@
             <div class="book-cover book-cover-placeholder"></div>
           {% endif %}
           <div class="book-details">
-            <div class="book-title">{{ book.title }}</div>
+            <div class="book-title">
+              {{ book.title }}
+              {% if user.is_authenticated and user.is_staff %}
+                <a href="/admin/books/book/{{ book.pk }}/change/" style="font-size: 0.7rem; font-weight: normal; color: var(--text-muted); margin-left: 8px;">(edit)</a>
+              {% endif %}
+            </div>
             <div class="book-meta">
               <span>by {{ book.author }}</span>
               {% if book.published_year %}
