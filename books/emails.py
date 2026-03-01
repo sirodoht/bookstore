@@ -18,7 +18,7 @@ def send_purchase_confirmation(order):
         shipping_info = f"""
 
 SHIPPING ADDRESS
------
+---
 Name: {order.shipping_name}
 Address: {order.shipping_address_line1}
 """
@@ -33,12 +33,12 @@ Country: {order.shipping_country}"""
     body = f"""Thank you for your purchase!
 
 ORDER #{order.id}
------
+---
 Order Date: {purchase_date}
-Status: Pending (we'll notify you when shipped)
+Status: Pending (we ship within 1 business day)
 
 BOOK DETAILS
------
+---
 Title: {order.book_title}
 Author: {order.book_author}
 ISBN: {order.book_isbn}
@@ -82,7 +82,7 @@ Country: {order.shipping_country}"""
     body = f"""A new order has been placed!
 
 ORDER #{order.id}
------
+---
 Order Date: {purchase_date}
 Customer Email: {order.customer_email}
 Stripe Session: {order.stripe_session_id}
@@ -112,32 +112,42 @@ def send_race_condition_refund_notification(
     amount = Decimal(amount_total) / Decimal(100)
 
     if refund_status == "succeeded":
-        refund_message = f"""You have been issued a full refund of £{amount:.2f}. The refund will appear on your payment method within 5 to 10 business days, depending on your bank or card issuer."""
+        refund_message = (
+            f"You have been issued a full refund of £{amount:.2f}. "
+            "The refund will appear on your payment method within 10 business days."
+        )
     elif refund_status == "not attempted":
-        refund_message = f"""We were unable to process a refund automatically. Our team has been notified and will manually issue a full refund of £{amount:.2f} to your payment method within 24 hours."""
+        refund_message = (
+            "We were unable to process a refund automatically. Our team "
+            f"has been notified and will manually issue a full refund of £{amount:.2f} "
+            "to your payment method within 24 hours."
+        )
     else:
-        refund_message = f"""We encountered an issue processing your refund automatically. Our team has been notified and will manually issue a full refund of £{amount:.2f} to your payment method within 24 hours."""
+        refund_message = (
+            "We encountered an issue processing your refund automatically. Our team "
+            f"has been notified and will manually issue a full refund of £{amount:.2f} "
+            "to your payment method within 24 hours."
+        )
 
     body = f"""We're sorry, but we were unable to complete your purchase.
 
 BOOK DETAILS
------
+---
 Title: {book_title}
 Author: {book_author}
 Price: £{amount:.2f}
 
 WHAT HAPPENED
------
+---
 Unfortunately, this book was sold to another customer just moments before your order was completed. We know this is disappointing, and we sincerely apologize for the inconvenience.
 
 REFUND INFORMATION
------
+---
 {refund_message}
 
 If you have any questions or need assistance, please contact us.
 
-Thank you for your understanding,
-The Bookstore Team
+Thank you for your understanding
 """
 
     send_mail(
