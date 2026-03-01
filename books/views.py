@@ -326,7 +326,7 @@ def stripe_webhook(request):
                             payment_intent,
                             session_id,
                         )
-                    except stripe.error.StripeError as e:
+                    except stripe.StripeError as e:
                         refund_status = f"failed: {str(e)}"
                         logger.error(
                             "Failed to create refund for payment_intent %s (session: %s): %s",
