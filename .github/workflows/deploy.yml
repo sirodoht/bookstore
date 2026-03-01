@@ -28,9 +28,8 @@ jobs:
     - name: Deploy to server
       run: |
         ssh root@${{ vars.HOST }} 'su - deploy -c "cd /var/www/bookstore && git pull origin main"'
-        ssh root@${{ vars.HOST }} 'su - deploy -c "source $HOME/.local/bin/env && cd /var/www/bookstore && uv sync"'
-        ssh root@${{ vars.HOST }} 'su - deploy -c "source $HOME/.local/bin/env && cd /var/www/bookstore && uv run manage.py collectstatic --no-input"'
-        ssh root@${{ vars.HOST }} 'su - deploy -c "source $HOME/.local/bin/env && cd /var/www/bookstore && uv run manage.py migrate --no-input"'
+        ssh root@${{ vars.HOST }} 'su - deploy -c "cd /var/www/bookstore && /var/www/bookstore/.venv/bin/python /var/www/bookstore/manage.py collectstatic --no-input"'
+        ssh root@${{ vars.HOST }} 'su - deploy -c "cd /var/www/bookstore && /var/www/bookstore/.venv/bin/python /var/www/bookstore/manage.py migrate --no-input"'
         ssh root@${{ vars.HOST }} 'systemctl restart bookstore'
         ssh root@${{ vars.HOST }} 'systemctl restart caddy'
       env:
