@@ -6,7 +6,7 @@ from uuid import uuid4
 
 from django.db import models
 from django.utils import timezone
-from PIL import Image
+from PIL import Image, ImageOps
 
 
 def book_cover_path(instance, filename):
@@ -49,8 +49,9 @@ class Book(models.Model):
         if not self.cover_image:
             return
 
-        # Open the image
+        # Open the image and apply EXIF orientation
         img = Image.open(self.cover_image)
+        img = ImageOps.exif_transpose(img)
 
         # Convert to RGB if necessary (handles PNG with transparency)
         if img.mode in ("RGBA", "P"):
