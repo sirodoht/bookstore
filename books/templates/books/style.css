@@ -840,6 +840,8 @@ ul {
     padding: 32px;
     color: var(--text-muted);
 }
+
+.batch-container {
     max-width: 700px;
     margin: 0 auto;
 }
