@@ -29,7 +29,7 @@ State/Province: {order.shipping_state}
 ZIP/Postal Code: {order.shipping_postal_code}
 Country: {order.shipping_country}"""
 
-    subject = f"[bookstore] Order Confirmation #{order.id} - {order.book_title}"
+    subject = f"[{settings.HOST}] Order Confirmation #{order.id} - {order.book_title}"
     body = f"""Thank you for your purchase!
 
 ORDER #{order.id}
@@ -108,7 +108,7 @@ def send_race_condition_refund_notification(
     book_title, book_author, customer_email, amount_total, refund_status
 ):
     """Send notification to customer when refunded due to race condition."""
-    subject = f"[bookstore] Order Canceled - {book_title}"
+    subject = f"[{settings.HOST}] Order Canceled - {book_title}"
     amount = Decimal(amount_total) / Decimal(100)
 
     if refund_status == "succeeded":

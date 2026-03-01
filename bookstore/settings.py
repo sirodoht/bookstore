@@ -34,6 +34,8 @@ if _host:
 else:
     ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
+HOST = _host  # Expose for email subjects
+
 
 # Application definition
 
