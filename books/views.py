@@ -3,6 +3,7 @@
 import base64
 import json
 import logging
+from decimal import Decimal
 
 import openai
 import stripe
@@ -196,6 +197,18 @@ def stripe_webhook(request):
                         )
                         return HttpResponse("Book already sold", status=409)
 
+                    # Price mismatch check: log warning but proceed with order
+                    amount_paid = Decimal(amount_total) / Decimal(100)
+                    if amount_paid != book.price:
+                        logger.warning(
+                            "Price mismatch for book %s (session: %s): "
+                            "expected £%s, received £%s",
+                            book_id,
+                            session_id,
+                            book.price,
+                            amount_paid,
+                        )
+
                     book.is_available = False
                     book.save()
                     logger.info("Marked book %s as unavailable", book_id)
@@ -207,7 +220,7 @@ def stripe_webhook(request):
                         book_price=book.price,
                         stripe_session_id=session_id,
                         customer_email=customer_email,
-                        amount_paid=amount_total / 100,
+                        amount_paid=amount_paid,
                         shipping_name=shipping_details.get("name", ""),
                         shipping_address_line1=address.get("line1", ""),
                         shipping_address_line2=address.get("line2", ""),
