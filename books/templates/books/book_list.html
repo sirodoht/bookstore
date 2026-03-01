@@ -301,6 +301,9 @@
             {% if book.description %}
               <div class="book-description">{{ book.description }}</div>
             {% endif %}
+            {% if book.review %}
+              <div class="book-review">{{ book.review }}</div>
+            {% endif %}
             <div class="book-footer">
               <div class="purchase-unit">
                 <div class="book-price">£{{ book.price }}</div>

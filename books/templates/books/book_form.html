@@ -215,6 +215,11 @@
       border-color: var(--accent-color);
     }
 
+    .skip-image-wrapper {
+      text-align: left;
+      margin-bottom: 24px;
+    }
+
     .hidden-fields {
       display: none;
     }
@@ -262,6 +267,10 @@
           </div>
         </div>
 
+        <div class="skip-image-wrapper">
+          <button type="button" class="btn btn-secondary skip-image-btn" id="skip-image-btn">Skip image analysis</button>
+        </div>
+
         <div class="hidden-fields" id="book-details-fields">
           <div class="form-group {% if form.title.errors %}field-error{% endif %}">
             <label for="{{ form.title.id_for_label }}">Title</label>
@@ -305,6 +314,18 @@
             {% if form.description.errors %}
               <ul class="errorlist">
                 {% for error in form.description.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+
+          <div class="form-group {% if form.review.errors %}field-error{% endif %}">
+            <label for="{{ form.review.id_for_label }}">Review</label>
+            {{ form.review }}
+            {% if form.review.errors %}
+              <ul class="errorlist">
+                {% for error in form.review.errors %}
                   <li>{{ error }}</li>
                 {% endfor %}
               </ul>
@@ -442,6 +463,11 @@
         } else {
           coverSection.classList.remove('has-image');
         }
+      });
+
+      const skipImageBtn = document.getElementById('skip-image-btn');
+      skipImageBtn.addEventListener('click', function() {
+        showFields();
       });
     })();
   </script>

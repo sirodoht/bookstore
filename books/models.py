@@ -23,6 +23,7 @@ class Book(models.Model):
     author = models.CharField(max_length=200)
     isbn = models.CharField(max_length=13, blank=True, null=True)
     description = models.TextField(blank=True)
+    review = models.TextField(blank=True, help_text="Public review of the book")
     published_year = models.IntegerField(null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=10.00)
     is_available = models.BooleanField(default=True)
