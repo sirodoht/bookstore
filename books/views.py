@@ -265,7 +265,7 @@ def stripe_webhook(request):
                             )
 
                         book.is_available = False
-                        book.save()
+                        Book.objects.filter(id=book.id).update(is_available=False)
                         logger.info("Marked book %s as unavailable", book_id)
 
                         order = Order.objects.create(
