@@ -1,6 +1,5 @@
 """Django views for books app."""
 
-import base64
 import json
 import logging
 from decimal import Decimal
@@ -11,14 +10,15 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.db import IntegrityError, transaction
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.http import JsonResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import CreateView, ListView, TemplateView
+from django.views.generic import CreateView, ListView, TemplateView, UpdateView
 
 from .models import Book, Order
 
@@ -41,6 +41,29 @@ class BookListView(ListView):
 
 class BookCreateView(UserPassesTestMixin, CreateView):
     """Create a new book (admin only)."""
+
+    model = Book
+    template_name = "books/book_form.html"
+    fields = [
+        "title",
+        "author",
+        "isbn",
+        "description",
+        "published_year",
+        "price",
+        "is_available",
+        "cover_image",
+    ]
+    success_url = reverse_lazy("books:book-list")
+    login_url = "/admin/login/"
+
+    def test_func(self):
+        """Only allow admin users."""
+        return self.request.user.is_staff
+
+
+class BookUpdateView(UserPassesTestMixin, UpdateView):
+    """Update an existing book (admin only)."""
 
     model = Book
     template_name = "books/book_form.html"
@@ -575,6 +598,189 @@ The Bookstore Team
     )
 
 
+class BookBatchUploadView(UserPassesTestMixin, TemplateView):
+    """Display batch upload form for multiple book covers (admin only)."""
+
+    template_name = "books/batch_upload.html"
+    login_url = "/admin/login/"
+
+    def test_func(self):
+        """Only allow admin users."""
+        return self.request.user.is_staff
+
+    def get_context_data(self, **kwargs):
+        """Add max files limit to context."""
+        context = super().get_context_data(**kwargs)
+        context["max_files"] = 10
+        return context
+
+
+@user_passes_test(lambda u: u.is_staff)
+def batch_upload_stream(request):
+    """Stream batch upload progress via Server-Sent Events."""
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST requests allowed"}, status=405)
+
+    files = request.FILES.getlist("cover_images")
+
+    if not files:
+        return JsonResponse({"error": "No files provided"}, status=400)
+
+    if len(files) > 10:
+        return JsonResponse({"error": "Maximum 10 files allowed"}, status=400)
+
+    def event_stream():
+        """Generate SSE events for each file processed."""
+        from . import openai as openai_module
+
+        results = []
+        total = len(files)
+
+        for idx, file in enumerate(files, 1):
+            result = {
+                "index": idx,
+                "total": total,
+                "filename": file.name,
+                "status": "processing",
+                "book_id": None,
+                "book_title": None,
+                "error": None,
+            }
+
+            # Send processing start event
+            yield f"data: {json.dumps(result)}\n\n"
+
+            try:
+                # Read and analyze the image
+                image_data = file.read()
+                analysis = openai_module.analyze_cover_image(image_data)
+
+                if not analysis["success"]:
+                    result["status"] = "failed"
+                    result["error"] = analysis.get("error", "Analysis failed")
+                    results.append(result)
+                    yield f"data: {json.dumps(result)}\n\n"
+                    continue
+
+                # Parse published year
+                published_year = None
+                if analysis.get("published_year"):
+                    try:
+                        year_str = analysis["published_year"].strip()
+                        if year_str.isdigit():
+                            published_year = int(year_str)
+                    except (ValueError, AttributeError):
+                        pass
+
+                # Create the book with is_available=False
+                book = Book.objects.create(
+                    title=analysis.get("title", "") or "Untitled",
+                    author=analysis.get("author", "") or "Unknown Author",
+                    description=analysis.get("description", ""),
+                    published_year=published_year,
+                    price=Decimal("10.00"),
+                    is_available=False,
+                )
+
+                # Save the cover image
+                if image_data:
+                    book.cover_image.save(
+                        file.name,
+                        ContentFile(image_data),
+                        save=True,
+                    )
+
+                result["status"] = "completed"
+                result["book_id"] = book.id
+                result["book_title"] = book.title
+
+                logger.info(
+                    "batch_upload: Created book %s from %s",
+                    book.id,
+                    file.name,
+                )
+
+            except Exception as e:
+                logger.exception("batch_upload: Failed to process %s: %s", file.name, e)
+                result["status"] = "failed"
+                result["error"] = str(e)
+
+            results.append(result)
+            yield f"data: {json.dumps(result)}\n\n"
+
+        # Send completion event with all results
+        completion = {
+            "status": "complete",
+            "total": total,
+            "completed": sum(1 for r in results if r["status"] == "completed"),
+            "failed": sum(1 for r in results if r["status"] == "failed"),
+            "results": results,
+        }
+        yield f"data: {json.dumps(completion)}\n\n"
+
+    response = StreamingHttpResponse(
+        event_stream(),
+        content_type="text/event-stream",
+    )
+    response["Cache-Control"] = "no-cache"
+    response["X-Accel-Buffering"] = "no"
+    return response
+
+
+@user_passes_test(lambda u: u.is_staff)
+def batch_results(request):
+    """Display results of batch upload."""
+    results_json = request.GET.get("results")
+
+    if not results_json:
+        messages.warning(request, "No batch results to display.")
+        return redirect("books:book-list")
+
+    try:
+        results = json.loads(results_json)
+    except json.JSONDecodeError:
+        messages.error(request, "Invalid batch results data.")
+        return redirect("books:book-list")
+
+    completed_books = []
+    failed_uploads = []
+
+    for result in results:
+        if result["status"] == "completed" and result.get("book_id"):
+            try:
+                book = Book.objects.get(id=result["book_id"])
+                completed_books.append(
+                    {
+                        "book": book,
+                        "filename": result["filename"],
+                    }
+                )
+            except Book.DoesNotExist:
+                failed_uploads.append(
+                    {
+                        "filename": result["filename"],
+                        "error": "Book was deleted",
+                    }
+                )
+        elif result["status"] == "failed":
+            failed_uploads.append(
+                {
+                    "filename": result["filename"],
+                    "error": result.get("error", "Unknown error"),
+                }
+            )
+
+    context = {
+        "completed_books": completed_books,
+        "failed_uploads": failed_uploads,
+        "total": len(results),
+        "completed_count": len(completed_books),
+        "failed_count": len(failed_uploads),
+    }
+
+    return render(request, "books/batch_results.html", context)
+
+
 @user_passes_test(lambda u: u.is_staff)
 def analyze_cover(request):
     """Analyze book cover image using OpenAI and extract book details."""
@@ -600,106 +806,28 @@ def analyze_cover(request):
 
     try:
         image_data = cover_image.read()
-        base64_image = base64.b64encode(image_data).decode("utf-8")
-
-        logger.debug(
-            "analyze_cover: Image encoded successfully (%d bytes)", len(image_data)
-        )
     except Exception as e:
-        logger.error("analyze_cover: Failed to read/encode image: %s", e, exc_info=True)
+        logger.error("analyze_cover: Failed to read image: %s", e, exc_info=True)
         return JsonResponse({"error": "Failed to process image"}, status=500)
 
-    if not settings.OPENAI_API_KEY:
-        logger.error("analyze_cover: OPENAI_API_KEY not configured")
-        return JsonResponse({"error": "OpenAI not configured"}, status=500)
+    from . import openai as openai_module
 
-    prompt = """Analyze this book cover image and provide the following information:
+    analysis = openai_module.analyze_cover_image(image_data)
 
-1. Title: The main title of the book
-2. Author: The author's name
-3. Description: A one-sentence blurb or description of what the book is about
-4. Published Year: The publication year
+    if not analysis["success"]:
+        error_msg = analysis.get("error", "Analysis failed")
+        status_code = 500
+        if "rate limited" in error_msg.lower():
+            status_code = 429
+        elif "not configured" in error_msg.lower():
+            status_code = 500
+        return JsonResponse({"error": error_msg}, status=status_code)
 
-Return ONLY a JSON object with these exact keys:
-- title (string, empty if not known)
-- author (string, empty if not known)
-- description (string, empty if not known)
-- published_year (string, empty if not known)
-
-If any field cannot be determined, use an empty string as the value.
-Do not include markdown formatting, just the raw JSON."""
-
-    try:
-        logger.info(
-            "analyze_cover: Sending request to OpenAI for user %s", request.user
-        )
-
-        client = openai.OpenAI()
-        response = client.chat.completions.create(
-            model="gpt-5.2",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            },
-                        },
-                    ],
-                }
-            ],
-            max_completion_tokens=500,
-        )
-
-        content = response.choices[0].message.content
-        logger.debug("analyze_cover: OpenAI response: %s", content)
-
-        try:
-            data = json.loads(content)
-
-            required_keys = ["title", "author", "description", "published_year"]
-            for key in required_keys:
-                if key not in data:
-                    logger.warning(
-                        "analyze_cover: Missing key '%s' in OpenAI response", key
-                    )
-                    data[key] = ""
-
-            logger.info(
-                "analyze_cover: Successfully extracted data for user %s - title: '%s', author: '%s'",
-                request.user,
-                data.get("title", "")[:50],
-                data.get("author", "")[:50],
-            )
-
-            return JsonResponse(data)
-
-        except json.JSONDecodeError as e:
-            logger.error(
-                "analyze_cover: Failed to parse OpenAI JSON response: %s\nContent: %s",
-                e,
-                content,
-            )
-            return JsonResponse(
-                {
-                    "title": "",
-                    "author": "",
-                    "isbn": "",
-                    "description": "",
-                    "published_year": "",
-                    "error": "Failed to parse AI response",
-                }
-            )
-
-    except openai.APIError as e:
-        logger.error("analyze_cover: OpenAI API error: %s", e, exc_info=True)
-        return JsonResponse({"error": "AI service error"}, status=502)
-    except openai.RateLimitError as e:
-        logger.error("analyze_cover: OpenAI rate limit exceeded: %s", e, exc_info=True)
-        return JsonResponse({"error": "AI service rate limited"}, status=429)
-    except Exception as e:
-        logger.exception("analyze_cover: Unexpected error: %s", e)
-        return JsonResponse({"error": "Analysis failed"}, status=500)
+    return JsonResponse(
+        {
+            "title": analysis.get("title", ""),
+            "author": analysis.get("author", ""),
+            "description": analysis.get("description", ""),
+            "published_year": analysis.get("published_year", ""),
+        }
+    )

@@ -1,0 +1,531 @@
+{% extends "books/base.html" %}
+
+{% block title %}Batch Upload Books{% endblock %}
+
+{% block extra_css %}
+    .batch-upload-container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .batch-header {
+      margin-bottom: 24px;
+    }
+
+    .batch-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .home-link {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .home-link::before {
+      content: "←";
+      margin-right: 4px;
+    }
+
+    .upload-area {
+      border: 3px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 40px 24px;
+      background: var(--card-bg-alt);
+      text-align: center;
+      transition: all 0.2s ease;
+      margin-bottom: 20px;
+    }
+
+    .upload-area.dragover {
+      border-color: var(--accent-green);
+      background: rgba(42, 157, 143, 0.1);
+    }
+
+    .upload-area.has-files {
+      border-style: solid;
+      border-color: var(--accent-green);
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    .upload-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .upload-hint {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    .file-list {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .file-item .file-icon {
+      font-size: 1.5rem;
+    }
+
+    .file-item .file-name {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .file-item .file-remove {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.2s ease;
+    }
+
+    .file-item .file-remove:hover {
+      background: rgba(230, 57, 70, 0.1);
+    }
+
+    .progress-section {
+      display: none;
+      margin-top: 24px;
+      padding: 24px;
+      background: var(--card-bg);
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+    }
+
+    .progress-section.active {
+      display: block;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .progress-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .progress-count {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 24px;
+      background: var(--card-bg-alt);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+      width: 0%;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .current-file {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .status-messages {
+      margin-top: 16px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .status-message {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      margin-bottom: 4px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .status-message.success {
+      background: rgba(42, 157, 143, 0.15);
+    }
+
+    .status-message.error {
+      background: rgba(230, 57, 70, 0.15);
+    }
+
+    .status-message.processing {
+      background: rgba(135, 206, 235, 0.15);
+    }
+
+    .status-icon {
+      font-size: 1rem;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 600px) {
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .form-actions .btn,
+      .form-actions .back-link {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      font-weight: 600;
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--card-bg-alt);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+      transition: all 0.1s ease;
+    }
+
+    .back-link:hover {
+      background: #d8e8ec;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      color: #e63946;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: rgba(230, 57, 70, 0.1);
+      border-radius: 4px;
+      display: none;
+    }
+
+    .error-message.visible {
+      display: block;
+    }
+{% endblock extra_css %}
+
+{% block content %}
+  <div class="batch-upload-container">
+    <header class="site-header batch-header">
+      <div class="batch-header-row">
+        <h1 class="site-title">Batch Upload Books</h1>
+        <a href="{% url 'books:book-list' %}" class="home-link">Home</a>
+      </div>
+    </header>
+
+    <div class="card">
+      <form method="post" enctype="multipart/form-data" id="batch-form" action="{% url 'books:batch-upload-stream' %}">
+        {% csrf_token %}
+
+        <div class="upload-area" id="upload-area">
+          <div class="upload-icon">📚</div>
+          <div class="upload-text">Drop book covers here or click to select</div>
+          <div class="upload-hint">Up to {{ max_files }} images (JPG, PNG)</div>
+          <input type="file" id="file-input" name="cover_images" multiple accept="image/*">
+        </div>
+
+        <div class="error-message" id="error-message"></div>
+
+        <div class="file-list" id="file-list"></div>
+
+        <div class="progress-section" id="progress-section">
+          <div class="progress-header">
+            <span class="progress-title">Processing books...</span>
+            <span class="progress-count" id="progress-count">0 / 0</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progress-bar">0%</div>
+          </div>
+          <div class="current-file" id="current-file"></div>
+          <div class="status-messages" id="status-messages"></div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success" id="upload-btn" disabled>Start Upload</button>
+          <a href="{% url 'books:book-list' %}" class="back-link">← Back to Book List</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const uploadArea = document.getElementById('upload-area');
+      const fileInput = document.getElementById('file-input');
+      const fileList = document.getElementById('file-list');
+      const uploadBtn = document.getElementById('upload-btn');
+      const batchForm = document.getElementById('batch-form');
+      const progressSection = document.getElementById('progress-section');
+      const progressBar = document.getElementById('progress-bar');
+      const progressCount = document.getElementById('progress-count');
+      const currentFileEl = document.getElementById('current-file');
+      const statusMessages = document.getElementById('status-messages');
+      const errorMessage = document.getElementById('error-message');
+
+      let selectedFiles = [];
+      const maxFiles = {{ max_files }};
+
+      // Click to select files
+      uploadArea.addEventListener('click', (e) => {
+        if (e.target !== fileInput) {
+          fileInput.click();
+        }
+      });
+
+      // File input change
+      fileInput.addEventListener('change', (e) => {
+        handleFiles(Array.from(e.target.files));
+      });
+
+      // Drag and drop
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+      });
+
+      uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        handleFiles(Array.from(e.dataTransfer.files));
+      });
+
+      function handleFiles(files) {
+        const imageFiles = files.filter(f => f.type.startsWith('image/'));
+
+        if (imageFiles.length === 0) {
+          showError('Please select image files only.');
+          return;
+        }
+
+        const remainingSlots = maxFiles - selectedFiles.length;
+        const filesToAdd = imageFiles.slice(0, remainingSlots);
+
+        if (imageFiles.length > remainingSlots) {
+          showError(`Only ${remainingSlots} more file${remainingSlots === 1 ? '' : 's'} can be added (max ${maxFiles}).`);
+        }
+
+        selectedFiles = selectedFiles.concat(filesToAdd);
+        updateFileList();
+        updateUploadButton();
+      }
+
+      function updateFileList() {
+        fileList.innerHTML = '';
+
+        selectedFiles.forEach((file, index) => {
+          const item = document.createElement('div');
+          item.className = 'file-item';
+          item.innerHTML = `
+            <span class="file-icon">📖</span>
+            <span class="file-name">${escapeHtml(file.name)}</span>
+            <button type="button" class="file-remove" data-index="${index}" title="Remove">×</button>
+          `;
+          fileList.appendChild(item);
+        });
+
+        // Update DataTransfer for form submission
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        fileInput.files = dataTransfer.files;
+
+        if (selectedFiles.length > 0) {
+          uploadArea.classList.add('has-files');
+        } else {
+          uploadArea.classList.remove('has-files');
+        }
+
+        // Add remove handlers
+        document.querySelectorAll('.file-remove').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const index = parseInt(e.target.dataset.index);
+            selectedFiles.splice(index, 1);
+            updateFileList();
+            updateUploadButton();
+          });
+        });
+      }
+
+      function updateUploadButton() {
+        uploadBtn.disabled = selectedFiles.length === 0;
+        if (selectedFiles.length > 0) {
+          uploadBtn.textContent = `Start Upload (${selectedFiles.length} file${selectedFiles.length === 1 ? '' : 's'})`;
+        } else {
+          uploadBtn.textContent = 'Start Upload';
+        }
+      }
+
+      function showError(msg) {
+        errorMessage.textContent = msg;
+        errorMessage.classList.add('visible');
+        setTimeout(() => {
+          errorMessage.classList.remove('visible');
+        }, 5000);
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function addStatusMessage(message, type) {
+        const msg = document.createElement('div');
+        msg.className = `status-message ${type}`;
+        const icon = type === 'success' ? '✓' : type === 'error' ? '✗' : '⟳';
+        msg.innerHTML = `<span class="status-icon">${icon}</span> ${escapeHtml(message)}`;
+        statusMessages.appendChild(msg);
+        statusMessages.scrollTop = statusMessages.scrollHeight;
+      }
+
+      // Form submission with SSE
+      batchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (selectedFiles.length === 0) {
+          showError('Please select at least one file.');
+          return;
+        }
+
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = 'Uploading...';
+        progressSection.classList.add('active');
+
+        const formData = new FormData(batchForm);
+
+        try {
+          const response = await fetch(batchForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+            }
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            showError(error.error || 'Upload failed');
+            uploadBtn.disabled = false;
+            updateUploadButton();
+            return;
+          }
+
+          // Read SSE stream
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          let results = [];
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n\n');
+            buffer = lines.pop();
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  handleSSEEvent(data, results);
+                } catch (e) {
+                  console.error('Failed to parse SSE data:', line);
+                }
+              }
+            }
+          }
+
+        } catch (error) {
+          console.error('Upload error:', error);
+          showError('Upload failed. Please try again.');
+          uploadBtn.disabled = false;
+          updateUploadButton();
+        }
+      });
+
+      function handleSSEEvent(data, results) {
+        if (data.status === 'complete') {
+          // All done, redirect to results page
+          const resultsParam = encodeURIComponent(JSON.stringify(data.results));
+          window.location.href = `{% url 'books:batch-results' %}?results=${resultsParam}`;
+          return;
+        }
+
+        // Update progress
+        const percent = Math.round((data.index / data.total) * 100);
+        progressBar.style.width = `${percent}%`;
+        progressBar.textContent = `${percent}%`;
+        progressCount.textContent = `${data.index} / ${data.total}`;
+        currentFileEl.textContent = `Processing: ${data.filename}`;
+
+        // Add status message
+        if (data.status === 'processing') {
+          addStatusMessage(`Analyzing ${data.filename}...`, 'processing');
+        } else if (data.status === 'completed') {
+          addStatusMessage(`Created: ${data.book_title}`, 'success');
+        } else if (data.status === 'failed') {
+          addStatusMessage(`Failed: ${data.filename} - ${data.error}`, 'error');
+        }
+
+        results.push(data);
+      }
+    })();
+  </script>
+{% endblock content %}
