@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from .models import Book, Order
 
@@ -76,7 +76,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     def fulfillment_status(self, obj):
         if obj.fulfilled:
-            return format_html('<span style="color: green;">✓ Fulfilled</span>')
-        return format_html('<span style="color: orange;">○ Pending</span>')
+            return mark_safe('<span style="color: green;">✓ Fulfilled</span>')
+        return mark_safe('<span style="color: orange;">○ Pending</span>')
 
     fulfillment_status.short_description = "Status"
