@@ -236,18 +236,18 @@ def stripe_webhook(request):
                         shipping_country=address.get("country", ""),
                     )
                     logger.info("Created order %s for book %s", order.id, book_id)
-            except IntegrityError:
-                logger.info(
-                    "IntegrityError: order for session %s already exists (race condition), returning 200",
-                    session_id,
-                )
-                return HttpResponse("Order already processed", status=200)
 
                 send_purchase_confirmation(order)
                 logger.info("Sent purchase confirmation for order %s", order.id)
 
                 send_admin_notification(order)
                 logger.info("Sent admin notification for order %s", order.id)
+            except IntegrityError:
+                logger.info(
+                    "IntegrityError: order for session %s already exists (race condition), returning 200",
+                    session_id,
+                )
+                return HttpResponse("Order already processed", status=200)
 
             except Exception as e:
                 logger.exception(
