@@ -28,9 +28,8 @@ class OrderAdmin(admin.ModelAdmin):
         "amount_paid",
         "fulfilled",
         "fulfillment_status",
-        "shipping_country",
     ]
-    list_filter = ["fulfilled", "created_at", "shipping_country", "fulfilled_at"]
+    list_filter = ["fulfilled", "created_at", "fulfilled_at"]
     search_fields = [
         "customer_email",
         "book_title",
@@ -67,8 +66,7 @@ class OrderAdmin(admin.ModelAdmin):
                 "fields": [
                     "shipping_name",
                     ("shipping_address_line1", "shipping_address_line2"),
-                    ("shipping_city", "shipping_state"),
-                    ("shipping_postal_code", "shipping_country"),
+                    ("shipping_city", "shipping_state", "shipping_postal_code"),
                 ]
             },
         ),
