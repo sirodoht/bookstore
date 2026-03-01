@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{% endblock %}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.bunny.net/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-cream: #fef9e7;
@@ -33,6 +33,11 @@
       background-color: var(--bg-cream);
       padding: 24px;
       min-height: 100vh;
+    }
+    @media(max-width: 600px) {
+        body {
+            padding: 16px 12px;
+        }
     }
 
     .page-wrapper {
