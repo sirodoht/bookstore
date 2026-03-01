@@ -301,7 +301,7 @@
             <div class="book-author">by {{ item.book.author }}</div>
             <div class="book-meta">
               <span class="book-status draft">Draft</span>
-              <a href="{% url 'books:book-update' item.book.pk %}" class="edit-link">Edit Book →</a>
+              <a href="/admin/books/book/{{ item.book.pk }}/change/" class="edit-link">Edit Book →</a>
             </div>
           </div>
         </div>

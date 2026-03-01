@@ -259,8 +259,9 @@
   {% if user.is_authenticated and user.is_staff %}
     <div class="admin-bar">
       <a href="{% url 'books:book-create' %}">+ Add new book</a>
-      <a href="{% url 'books:batch-upload' %}">+ Batch upload</a>
-      <a href="/admin/">Admin</a>
+      <a href="{% url 'books:batch-upload' %}">Batch upload</a>
+      <a href="/admin/books/book/">Admin Books</a>
+      <a href="/admin/books/order/">Admin Orders</a>
     </div>
   {% endif %}
   <header class="site-header">
