@@ -160,13 +160,15 @@ def stripe_webhook(request):
                 logger.error(
                     "Missing book_id in session metadata (session: %s)", session_id
                 )
-                return HttpResponse("Missing book_id in metadata", status=400)
+                # Return 200 to acknowledge - missing metadata is a permanent error
+                return HttpResponse("Missing book_id in metadata", status=200)
 
             if not customer_email:
                 logger.error(
                     "Missing customer email in session (session: %s)", session_id
                 )
-                return HttpResponse("Missing customer email", status=400)
+                # Return 200 to acknowledge - missing email is a permanent error
+                return HttpResponse("Missing customer email", status=200)
 
             # Idempotency check: skip if order already processed
             if Order.objects.filter(stripe_session_id=session_id).exists():
@@ -193,7 +195,8 @@ def stripe_webhook(request):
                         logger.error(
                             "Book not found: %s (session: %s)", book_id, session_id
                         )
-                        return HttpResponse(f"Book {book_id} not found", status=404)
+                        # Return 200 to acknowledge - book was deleted, no retry will help
+                        return HttpResponse(f"Book {book_id} not found", status=200)
 
                     if not book.is_available:
                         logger.warning(
@@ -255,7 +258,9 @@ A refund has been {"processed" if refund_status == "succeeded" else "attempted"}
                                     "Failed to send admin notification: %s", str(e)
                                 )
 
-                        return HttpResponse("Book already sold", status=409)
+                        return HttpResponse(
+                            "Book already sold - refund issued", status=200
+                        )
 
                     # Price mismatch check: log warning but proceed with order
                     amount_paid = Decimal(amount_total) / Decimal(100)
