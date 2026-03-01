@@ -161,17 +161,6 @@ def stripe_webhook(request):
                 )
                 return HttpResponse("Missing customer email", status=400)
 
-            try:
-                book = Book.objects.get(id=book_id)
-            except Book.DoesNotExist:
-                logger.error("Book not found: %s (session: %s)", book_id, session_id)
-                return HttpResponse(f"Book {book_id} not found", status=404)
-
-            if not book.is_available:
-                logger.warning(
-                    "Book %s is already unavailable (session: %s)", book_id, session_id
-                )
-
             shipping_details = session.get("shipping_details", {})
             address = shipping_details.get("address", {})
             amount_total = session.get("amount_total")
@@ -184,6 +173,22 @@ def stripe_webhook(request):
 
             try:
                 with transaction.atomic():
+                    try:
+                        book = Book.objects.select_for_update().get(id=book_id)
+                    except Book.DoesNotExist:
+                        logger.error(
+                            "Book not found: %s (session: %s)", book_id, session_id
+                        )
+                        return HttpResponse(f"Book {book_id} not found", status=404)
+
+                    if not book.is_available:
+                        logger.warning(
+                            "Book %s is already sold (session: %s)",
+                            book_id,
+                            session_id,
+                        )
+                        return HttpResponse("Book already sold", status=409)
+
                     book.is_available = False
                     book.save()
                     logger.info("Marked book %s as unavailable", book_id)
