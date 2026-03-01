@@ -45,7 +45,7 @@ ISBN: {order.book_isbn}
 Price: £{order.amount_paid:.2f}
 {shipping_info}
 
-If you have any questions about your order, please contact us and reference Order #{order.id}.
+If you have any questions about your order just reply to this message.
 """
 
     send_mail(
@@ -78,7 +78,15 @@ State: {order.shipping_state}
 Postcode: {order.shipping_postal_code}
 Country: {order.shipping_country}"""
 
-    subject = f"[bookstore] New Order #{order.id} - {order.book_title}"
+    customer_display = (
+        order.shipping_name if order.shipping_name else order.customer_email
+    )
+    shipping_location = ""
+    if order.shipping_city and order.shipping_country:
+        shipping_location = f" — {order.shipping_city}, {order.shipping_country}"
+    subject = (
+        f"[bookstore] {customer_display} bought {order.book_title}{shipping_location}"
+    )
     body = f"""A new order has been placed!
 
 ORDER #{order.id}
