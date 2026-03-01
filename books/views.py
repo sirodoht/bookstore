@@ -65,6 +65,11 @@ class BookCreateView(UserPassesTestMixin, CreateView):
 class BookPurchaseView(View):
     """Handle book purchase and redirect to Stripe Checkout."""
 
+    def get(self, request, pk):
+        """Redirect GET requests to book list."""
+        messages.info(request, "Please use the purchase button to buy this book.")
+        return redirect("books:book-list")
+
     def post(self, request, pk):
         book = get_object_or_404(Book, pk=pk, is_available=True)
 
