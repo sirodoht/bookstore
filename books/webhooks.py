@@ -108,7 +108,9 @@ def stripe_webhook(request):
                     status=200,
                 )
 
-            shipping_details = session.get("shipping_details", {})
+            shipping_details = session.get("collected_information", {}).get(
+                "shipping_details", {}
+            ) or session.get("shipping_details", {})
             address = shipping_details.get("address", {})
             amount_total = session.get("amount_total")
 
