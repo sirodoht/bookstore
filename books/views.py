@@ -79,7 +79,7 @@ class BookPurchaseView(View):
                                 "name": book.title,
                                 "description": f"by {book.author}",
                             },
-                            "unit_amount": int(book.price * 100),
+                            "unit_amount": int((book.price * 100).to_integral_value()),
                         },
                         "quantity": 1,
                     }
