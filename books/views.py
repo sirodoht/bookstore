@@ -238,7 +238,7 @@ def send_purchase_confirmation(order):
         shipping_info = f"""
 
 SHIPPING ADDRESS
-----------------
+-----
 Name: {order.shipping_name}
 Address: {order.shipping_address_line1}
 """
@@ -253,12 +253,12 @@ Country: {order.shipping_country}"""
     body = f"""Thank you for your purchase!
 
 ORDER #{order.id}
-----------------
+-----
 Order Date: {purchase_date}
 Status: Pending (we'll notify you when shipped)
 
 BOOK DETAILS
-----------------
+-----
 Title: {order.book_title}
 Author: {order.book_author}
 ISBN: {order.book_isbn}
@@ -302,7 +302,7 @@ Country: {order.shipping_country}"""
     body = f"""A new order has been placed!
 
 ORDER #{order.id}
-----------------
+-----
 Order Date: {purchase_date}
 Customer Email: {order.customer_email}
 Stripe Session: {order.stripe_session_id}
@@ -313,8 +313,6 @@ Author: {order.book_author}
 ISBN: {order.book_isbn}
 Price: £{order.amount_paid:.2f}
 {shipping_info}
-
-Please fulfill this order at your earliest convenience.
 """
 
     send_mail(
