@@ -5,6 +5,9 @@
 {% block extra_css %}
     .admin-bar {
       margin: -12px 0 16px 0;
+      display: flex;
+      gap: 24px;
+      align-items: center;
     }
 
     .admin-bar a {
@@ -229,6 +232,8 @@
   {% if user.is_authenticated and user.is_staff %}
     <div class="admin-bar">
       <a href="{% url 'books:book-create' %}">+ Add new book</a>
+      <a href="{% url 'books:batch-upload' %}">+ Batch upload</a>
+      <a href="/admin/">Admin</a>
     </div>
   {% endif %}
   <header class="site-header">

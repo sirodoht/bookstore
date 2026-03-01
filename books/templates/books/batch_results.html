@@ -259,11 +259,6 @@
       padding: 32px;
       color: var(--text-muted);
     }
-
-    .no-failures-icon {
-      font-size: 2rem;
-      margin-bottom: 8px;
-    }
 {% endblock extra_css %}
 
 {% block content %}
@@ -334,8 +329,7 @@
     <div class="results-section">
       <h2 class="section-title">✗ Failed Uploads</h2>
       <div class="no-failures">
-        <div class="no-failures-icon">🎉</div>
-        <p>No failures! All uploads were successful.</p>
+        <p>None.</p>
       </div>
     </div>
     {% endif %}
