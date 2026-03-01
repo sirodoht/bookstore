@@ -2,341 +2,98 @@
 
 {% block title %}Batch Upload Results{% endblock %}
 
-{% block extra_css %}
-    .results-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .results-header {
-      margin-bottom: 24px;
-    }
-
-    .results-header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-
-    .home-link {
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .home-link::before {
-      content: "←";
-      margin-right: 4px;
-    }
-
-    .summary-card {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    @media (max-width: 600px) {
-      .summary-card {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .summary-item {
-      text-align: center;
-      padding: 20px;
-      background: var(--card-bg);
-      border: 3px solid var(--border-color);
-      border-radius: 8px;
-      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
-    }
-
-    .summary-number {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--accent-green);
-      margin-bottom: 4px;
-    }
-
-    .summary-number.failed {
-      color: #e63946;
-    }
-
-    .summary-label {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    .results-section {
-      margin-bottom: 24px;
-    }
-
-    .section-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--border-color);
-    }
-
-    .books-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 16px;
-    }
-
-    @media (max-width: 600px) {
-      .books-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .book-card {
-      background: var(--card-bg);
-      border: 3px solid var(--border-color);
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
-      transition: transform 0.1s ease;
-    }
-
-    .book-card:hover {
-      transform: translate(-2px, -2px);
-      box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 2px) 0 var(--border-color);
-    }
-
-    .book-cover {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      background: var(--card-bg-alt);
-      border-bottom: 3px solid var(--border-color);
-    }
-
-    .book-cover-placeholder {
-      width: 100%;
-      height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--card-bg-alt);
-      border-bottom: 3px solid var(--border-color);
-      font-size: 3rem;
-    }
-
-    .book-info {
-      padding: 16px;
-    }
-
-    .book-title {
-      font-weight: 600;
-      font-size: 1rem;
-      margin-bottom: 4px;
-      line-height: 1.3;
-    }
-
-    .book-author {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .book-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .book-status {
-      font-size: 0.8rem;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-weight: 500;
-    }
-
-    .book-status.draft {
-      background: rgba(135, 206, 235, 0.2);
-      color: var(--text-dark);
-    }
-
-    .edit-link {
-      font-size: 0.85rem;
-      font-weight: 600;
-      padding: 6px 12px;
-      background: var(--accent-orange);
-      border: 2px solid var(--border-color);
-      border-radius: 6px;
-      text-decoration: none;
-      color: var(--text-dark);
-      transition: background 0.1s ease;
-    }
-
-    .edit-link:hover {
-      background: #e69350;
-    }
-
-    .failures-list {
-      background: #ffe4e1;
-      border: 3px solid var(--border-color);
-      border-radius: 8px;
-      padding: 20px;
-    }
-
-    .failure-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(230, 57, 70, 0.3);
-    }
-
-    .failure-item:last-child {
-      border-bottom: none;
-    }
-
-    .failure-icon {
-      font-size: 1.2rem;
-      flex-shrink: 0;
-    }
-
-    .failure-details {
-      flex: 1;
-    }
-
-    .failure-filename {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .failure-error {
-      font-size: 0.9rem;
-      color: #c92a2a;
-    }
-
-    .actions-bar {
-      display: flex;
-      gap: 12px;
-      margin-top: 32px;
-      padding-top: 24px;
-      border-top: 2px solid var(--border-color);
-    }
-
-    @media (max-width: 600px) {
-      .actions-bar {
-        flex-direction: column;
-      }
-
-      .actions-bar .btn,
-      .actions-bar .back-link {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 20px;
-      font-weight: 600;
-      border: 3px solid var(--border-color);
-      border-radius: 8px;
-      background: var(--card-bg-alt);
-      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
-      transition: all 0.1s ease;
-    }
-
-    .back-link:hover {
-      background: #d8e8ec;
-    }
-
-    .no-failures {
-      text-align: center;
-      padding: 32px;
-      color: var(--text-muted);
-    }
-{% endblock extra_css %}
-
 {% block content %}
-  <div class="results-container">
+<div class="results-container">
     <header class="site-header results-header">
-      <div class="results-header-row">
-        <h1 class="site-title">Batch Upload Results</h1>
-        <a href="{% url 'books:book-list' %}" class="home-link">Home</a>
-      </div>
+        <div class="results-header-row">
+            <h1 class="site-title">Batch Upload Results</h1>
+            <a href="{% url 'books:book-list' %}" class="home-link">Home</a>
+        </div>
     </header>
 
     <div class="summary-card card">
-      <div class="summary-item">
-        <div class="summary-number">{{ total }}</div>
-        <div class="summary-label">Total Files</div>
-      </div>
-      <div class="summary-item">
-        <div class="summary-number">{{ completed_count }}</div>
-        <div class="summary-label">Created</div>
-      </div>
-      <div class="summary-item">
-        <div class="summary-number {% if failed_count > 0 %}failed{% endif %}">{{ failed_count }}</div>
-        <div class="summary-label">Failed</div>
-      </div>
+        <div class="summary-item">
+            <div class="summary-number">{{ total }}</div>
+            <div class="summary-label">Total Files</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-number">{{ completed_count }}</div>
+            <div class="summary-label">Created</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-number {% if failed_count > 0 %}failed{% endif %}">
+                {{ failed_count }}
+            </div>
+            <div class="summary-label">Failed</div>
+        </div>
     </div>
 
     {% if completed_books %}
     <div class="results-section">
-      <h2 class="section-title">✓ Successfully Created Books ({{ completed_count }})</h2>
-      <div class="books-grid">
-        {% for item in completed_books %}
-        <div class="book-card">
-          {% if item.book.cover_image %}
-          <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}" class="book-cover">
-          {% else %}
-          <div class="book-cover-placeholder">📚</div>
-          {% endif %}
-          <div class="book-info">
-            <div class="book-title">{{ item.book.title }}</div>
-            <div class="book-author">by {{ item.book.author }}</div>
-            <div class="book-meta">
-              <span class="book-status draft">Draft</span>
-              <a href="/admin/books/book/{{ item.book.pk }}/change/" class="edit-link">Edit Book →</a>
+        <h2 class="section-title">
+            ✓ Successfully Created Books ({{ completed_count }})
+        </h2>
+        <div class="books-grid">
+            {% for item in completed_books %}
+            <div class="book-card">
+                {% if item.book.cover_image %}
+                <img
+                    src="{{ item.book.cover_image.url }}"
+                    alt="{{ item.book.title }}"
+                    class="book-card-cover"
+                />
+                {% else %}
+                <div class="book-card-cover-placeholder">📚</div>
+                {% endif %}
+                <div class="book-info">
+                    <div class="book-card-title">{{ item.book.title }}</div>
+                    <div class="book-author">by {{ item.book.author }}</div>
+                    <div class="book-card-meta">
+                        <span class="book-status draft">Draft</span>
+                        <a
+                            href="/admin/books/book/{{ item.book.pk }}/change/"
+                            class="edit-link"
+                            >Edit Book →</a
+                        >
+                    </div>
+                </div>
             </div>
-          </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-      </div>
     </div>
     {% endif %}
 
     {% if failed_uploads %}
     <div class="results-section">
-      <h2 class="section-title">✗ Failed Uploads ({{ failed_count }})</h2>
-      <div class="failures-list">
-        {% for failure in failed_uploads %}
-        <div class="failure-item">
-          <span class="failure-icon">⚠️</span>
-          <div class="failure-details">
-            <div class="failure-filename">{{ failure.filename }}</div>
-            <div class="failure-error">{{ failure.error }}</div>
-          </div>
+        <h2 class="section-title">✗ Failed Uploads ({{ failed_count }})</h2>
+        <div class="failures-list">
+            {% for failure in failed_uploads %}
+            <div class="failure-item">
+                <span class="failure-icon">⚠️</span>
+                <div class="failure-details">
+                    <div class="failure-filename">{{ failure.filename }}</div>
+                    <div class="failure-error">{{ failure.error }}</div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-      </div>
     </div>
     {% else %}
     <div class="results-section">
-      <h2 class="section-title">✗ Failed Uploads</h2>
-      <div class="no-failures">
-        <p>None.</p>
-      </div>
+        <h2 class="section-title">✗ Failed Uploads</h2>
+        <div class="no-failures">
+            <p>None.</p>
+        </div>
     </div>
     {% endif %}
 
     <div class="actions-bar">
-      <a href="{% url 'books:batch-upload' %}" class="btn btn-success">Upload Another Batch</a>
-      <a href="{% url 'books:book-list' %}" class="back-link">← Back to Book List</a>
+        <a href="{% url 'books:batch-upload' %}" class="btn btn-success"
+            >Upload Another Batch</a
+        >
+        <a href="{% url 'books:book-list' %}" class="back-link"
+            >← Back to Book List</a
+        >
     </div>
-  </div>
+</div>
 {% endblock content %}
