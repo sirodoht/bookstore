@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.mail import send_mail
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -161,6 +161,13 @@ def stripe_webhook(request):
                 )
                 return HttpResponse("Missing customer email", status=400)
 
+            # Idempotency check: skip if order already processed
+            if Order.objects.filter(stripe_session_id=session_id).exists():
+                logger.info(
+                    "Order already processed for session %s, returning 200", session_id
+                )
+                return HttpResponse("Order already processed", status=200)
+
             shipping_details = session.get("shipping_details", {})
             address = shipping_details.get("address", {})
             amount_total = session.get("amount_total")
@@ -210,6 +217,12 @@ def stripe_webhook(request):
                         shipping_country=address.get("country", ""),
                     )
                     logger.info("Created order %s for book %s", order.id, book_id)
+            except IntegrityError:
+                logger.info(
+                    "IntegrityError: order for session %s already exists (race condition), returning 200",
+                    session_id,
+                )
+                return HttpResponse("Order already processed", status=200)
 
                 send_purchase_confirmation(order)
                 logger.info("Sent purchase confirmation for order %s", order.id)
