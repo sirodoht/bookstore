@@ -257,8 +257,10 @@
             <div class="book-title">{{ book.title }}</div>
             <div class="book-meta">
               <span>by {{ book.author }}</span>
-              <span class="separator">•</span>
-              <span>{% if book.published_year %}{{ book.published_year }}{% else %}Unknown year{% endif %}</span>
+              {% if book.published_year %}
+                <span class="separator">•</span>
+                <span>{{ book.published_year }}</span>
+              {% endif %}
               {% if book.isbn %}
                 <span class="separator">•</span>
                 <span>ISBN: {{ book.isbn }}</span>
