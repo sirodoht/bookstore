@@ -9,6 +9,9 @@ fi
 
 HOST="$1"
 
+echo "=== Installing dependencies ==="
+ssh $HOST 'su - deploy -c "source $HOME/.local/bin/env && cd /var/www/bookstore && uv sync"'
+
 echo "=== Running collectstatic ==="
 ssh $HOST 'su - deploy -c "source $HOME/.local/bin/env && cd /var/www/bookstore && uv run manage.py collectstatic --no-input"'
 
