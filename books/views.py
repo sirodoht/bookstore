@@ -296,11 +296,6 @@ A refund has been {"processed" if refund_status == "succeeded" else "attempted"}
                     )
                     logger.info("Created order %s for book %s", order.id, book_id)
 
-                send_purchase_confirmation(order)
-                logger.info("Sent purchase confirmation for order %s", order.id)
-
-                send_admin_notification(order)
-                logger.info("Sent admin notification for order %s", order.id)
             except IntegrityError:
                 logger.info(
                     "IntegrityError: order for session %s already exists (race condition), returning 200",
@@ -313,6 +308,25 @@ A refund has been {"processed" if refund_status == "succeeded" else "attempted"}
                     "Failed to process order (session: %s): %s", session_id, e
                 )
                 return HttpResponse("Order processing failed", status=500)
+
+            # Send emails outside the transaction to avoid 500 on SMTP failure
+            try:
+                send_purchase_confirmation(order)
+                logger.info("Sent purchase confirmation for order %s", order.id)
+            except Exception:
+                logger.exception(
+                    "Failed to send confirmation email for order %s", order.id
+                )
+
+            try:
+                send_admin_notification(order)
+                logger.info("Sent admin notification for order %s", order.id)
+            except Exception:
+                logger.exception(
+                    "Failed to send admin notification for order %s", order.id
+                )
+
+            return HttpResponse("OK", status=200)
 
         except Exception as e:
             logger.exception(
