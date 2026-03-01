@@ -530,6 +530,14 @@ def send_race_condition_refund_notification(
     """Send notification to customer when refunded due to race condition."""
     subject = f"[bookstore] Order Canceled - {book_title}"
     amount = Decimal(amount_total) / Decimal(100)
+
+    if refund_status == "succeeded":
+        refund_message = f"""You have been issued a full refund of £{amount:.2f}. The refund will appear on your payment method within 5 to 10 business days, depending on your bank or card issuer."""
+    elif refund_status == "not attempted":
+        refund_message = f"""We were unable to process a refund automatically. Our team has been notified and will manually issue a full refund of £{amount:.2f} to your payment method within 24 hours."""
+    else:
+        refund_message = f"""We encountered an issue processing your refund automatically. Our team has been notified and will manually issue a full refund of £{amount:.2f} to your payment method within 24 hours."""
+
     body = f"""We're sorry, but we were unable to complete your purchase.
 
 BOOK DETAILS
@@ -544,7 +552,7 @@ Unfortunately, this book was sold to another customer just moments before your o
 
 REFUND INFORMATION
 -----
-You have been issued a full refund of £{amount:.2f}. The refund will appear on your payment method within 5 to 10 business days, depending on your bank or card issuer.
+{refund_message}
 
 If you have any questions or need assistance, please contact us.
 
