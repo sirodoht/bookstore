@@ -29,6 +29,13 @@ State/Province: {order.shipping_state}
 ZIP/Postal Code: {order.shipping_postal_code}
 Country: {order.shipping_country}"""
 
+    isbn_info = (
+        f"""ISBN: {order.book_isbn}
+"""
+        if order.book_isbn
+        else ""
+    )
+
     subject = f"[{settings.HOST}] Order Confirmation #{order.id} - {order.book_title}"
     body = f"""Thank you for your purchase!
 
@@ -41,8 +48,7 @@ BOOK DETAILS
 ---
 Title: {order.book_title}
 Author: {order.book_author}
-ISBN: {order.book_isbn}
-Price: £{order.amount_paid:.2f}
+{isbn_info}Price: £{order.amount_paid:.2f}
 {shipping_info}
 
 If you have any questions about your order just reply to this message.
@@ -84,6 +90,14 @@ Country: {order.shipping_country}"""
     shipping_location = ""
     if order.shipping_city and order.shipping_country:
         shipping_location = f" — {order.shipping_city}, {order.shipping_country}"
+
+    isbn_info_admin = (
+        f"""ISBN: {order.book_isbn}
+"""
+        if order.book_isbn
+        else ""
+    )
+
     subject = (
         f"[bookstore] {customer_display} bought {order.book_title}{shipping_location}"
     )
@@ -98,8 +112,7 @@ Stripe Session: {order.stripe_session_id}
 BOOK DETAILS:
 Title: {order.book_title}
 Author: {order.book_author}
-ISBN: {order.book_isbn}
-Price: £{order.amount_paid:.2f}
+{isbn_info_admin}Price: £{order.amount_paid:.2f}
 {shipping_info}
 """
 
