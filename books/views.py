@@ -197,10 +197,64 @@ def stripe_webhook(request):
 
                     if not book.is_available:
                         logger.warning(
-                            "Book %s is already sold (session: %s)",
+                            "Book %s is already sold (session: %s) - issuing refund",
                             book_id,
                             session_id,
                         )
+
+                        # Refund the customer since book is already sold
+                        payment_intent = session.get("payment_intent")
+                        refund_status = "not attempted"
+                        if payment_intent:
+                            try:
+                                stripe.Refund.create(payment_intent=payment_intent)
+                                refund_status = "succeeded"
+                                logger.info(
+                                    "Refund created for payment_intent %s (session: %s)",
+                                    payment_intent,
+                                    session_id,
+                                )
+                            except stripe.error.StripeError as e:
+                                refund_status = f"failed: {str(e)}"
+                                logger.error(
+                                    "Failed to create refund for payment_intent %s (session: %s): %s",
+                                    payment_intent,
+                                    session_id,
+                                    str(e),
+                                )
+
+                        # Notify admin about the race condition and refund
+                        if settings.ADMINS:
+                            try:
+                                subject = "[bookstore] RACE CONDITION: Refund issued for sold book"
+                                body = f"""A race condition occurred during checkout.
+
+Book: {book.title} by {book.author} (ID: {book_id})
+Customer Email: {customer_email}
+Stripe Session: {session_id}
+Payment Intent: {payment_intent}
+Amount: £{Decimal(amount_total) / Decimal(100):.2f}
+
+Refund Status: {refund_status}
+
+The customer attempted to purchase a book that was already sold to another customer.
+A refund has been {"processed" if refund_status == "succeeded" else "attempted"}.
+"""
+                                send_mail(
+                                    subject,
+                                    body,
+                                    settings.DEFAULT_FROM_EMAIL,
+                                    settings.ADMINS,
+                                    fail_silently=False,
+                                )
+                                logger.info(
+                                    "Admin notification sent for race condition refund"
+                                )
+                            except Exception as e:
+                                logger.error(
+                                    "Failed to send admin notification: %s", str(e)
+                                )
+
                         return HttpResponse("Book already sold", status=409)
 
                     # Price mismatch check: log warning but proceed with order
