@@ -8,6 +8,7 @@ from decimal import Decimal
 import openai
 import stripe
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.mail import send_mail
@@ -94,6 +95,11 @@ class BookPurchaseView(View):
             )
             return redirect(session.url)
         except Exception:
+            logger.exception("Failed to create Stripe checkout session for book %s", pk)
+            messages.error(
+                request,
+                "Something went wrong while initiating payment. Please try again.",
+            )
             return redirect("books:book-list")
 
 

@@ -186,11 +186,48 @@
       font-style: italic;
     }
 
+    /* Messages */
+    .messages {
+      margin-bottom: 24px;
+    }
+
+    .message {
+      background: var(--card-bg);
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+    }
+
+    .message.error {
+      background: #ffe4e1;
+    }
+
+    .message.success {
+      background: #e8f5e9;
+    }
+
+    .message.warning {
+      background: #fff3e0;
+    }
+
+    .message.info {
+      background: var(--card-bg-alt);
+    }
+
     {% block extra_css %}{% endblock %}
   </style>
 </head>
 <body>
   <div class="page-wrapper">
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="message {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
     {% block content %}{% endblock %}
   </div>
 </body>
