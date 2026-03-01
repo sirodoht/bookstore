@@ -31,7 +31,7 @@ jobs:
         ssh root@${{ vars.HOST }} 'su - deploy -c "cd /var/www/bookstore && //home/deploy/.local/bin/uv run sync"'
         ssh root@${{ vars.HOST }} 'su - deploy -c "cd /var/www/bookstore && /home/deploy/.local/bin/uv run /var/www/bookstore/manage.py collectstatic --no-input"'
         ssh root@${{ vars.HOST }} 'su - deploy -c "cd /var/www/bookstore && /home/deploy/.local/bin/uv run /var/www/bookstore/manage.py migrate --no-input"'
-        ssh root@${{ vars.HOST }} 'systemctl restart bookstore'
-        ssh root@${{ vars.HOST }} 'systemctl restart caddy'
+        ssh root@${{ vars.HOST }} 'systemctl reload bookstore'
+        ssh root@${{ vars.HOST }} 'systemctl reload caddy'
       env:
         SSH_KEY: ${{ secrets.SSH_KEY }}
