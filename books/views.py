@@ -31,7 +31,26 @@ class BookListView(ListView):
     context_object_name = "books"
 
     def get_queryset(self):
-        return Book.objects.filter(is_available=True).order_by("?")
+        queryset = Book.objects.filter(is_available=True)
+        sort = self.request.GET.get("sort")
+
+        if sort == "title_asc":
+            queryset = queryset.order_by("title")
+        elif sort == "title_desc":
+            queryset = queryset.order_by("-title")
+        elif sort == "author_asc":
+            queryset = queryset.order_by("author")
+        elif sort == "author_desc":
+            queryset = queryset.order_by("-author")
+        else:
+            queryset = queryset.order_by("?")
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["sort"] = self.request.GET.get("sort")
+        return context
 
 
 class BookCreateView(UserPassesTestMixin, CreateView):

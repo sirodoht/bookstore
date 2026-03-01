@@ -24,6 +24,25 @@
     <a href="{% url 'books:about' %}">about the bookshop</a>
 </div>
 
+<!--disable for now -->
+{% if False %}
+<div class="filter-bar card card-alt">
+    <div class="filter-group">
+        <span class="filter-label">Title:</span>
+        <a href="?sort=title_asc" class="filter-toggle{% if sort == 'title_asc' %} active{% endif %}">A-Z</a>
+        <a href="?sort=title_desc" class="filter-toggle{% if sort == 'title_desc' %} active{% endif %}">Z-A</a>
+    </div>
+    <div class="filter-group">
+        <span class="filter-label">Author:</span>
+        <a href="?sort=author_asc" class="filter-toggle{% if sort == 'author_asc' %} active{% endif %}">A-Z</a>
+        <a href="?sort=author_desc" class="filter-toggle{% if sort == 'author_desc' %} active{% endif %}">Z-A</a>
+    </div>
+    <div class="filter-group">
+        <a href="{% url 'books:book-list' %}" class="filter-clear{% if not sort %} active{% endif %}">Random</a>
+    </div>
+</div>
+{% endif %}
+
 {% if books %}
 <div class="book-list">
     {% for book in books %}
