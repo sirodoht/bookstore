@@ -31,7 +31,7 @@ class BookListView(ListView):
     context_object_name = "books"
 
     def get_queryset(self):
-        return Book.objects.filter(is_available=True)
+        return Book.objects.filter(is_available=True).order_by("?")
 
 
 class BookCreateView(UserPassesTestMixin, CreateView):
