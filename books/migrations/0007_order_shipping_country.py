@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0006_remove_order_shipping_country'),
+        ("books", "0006_remove_order_shipping_country"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='shipping_country',
+            model_name="order",
+            name="shipping_country",
             field=models.CharField(blank=True, max_length=100),
         ),
     ]

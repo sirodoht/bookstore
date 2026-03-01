@@ -6,15 +6,19 @@ import books.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0003_order'),
+        ("books", "0003_order"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='book',
-            name='cover_image',
-            field=models.ImageField(blank=True, help_text='Book cover image (will be cropped to 13:18 ratio)', null=True, upload_to=books.models.book_cover_path),
+            model_name="book",
+            name="cover_image",
+            field=models.ImageField(
+                blank=True,
+                help_text="Book cover image (will be cropped to 13:18 ratio)",
+                null=True,
+                upload_to=books.models.book_cover_path,
+            ),
         ),
     ]

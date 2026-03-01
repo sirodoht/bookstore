@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0008_alter_book_isbn'),
+        ("books", "0008_alter_book_isbn"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='order',
-            name='book_isbn',
+            model_name="order",
+            name="book_isbn",
             field=models.CharField(blank=True, max_length=13),
         ),
     ]

@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0005_alter_book_isbn'),
+        ("books", "0005_alter_book_isbn"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='order',
-            name='shipping_country',
+            model_name="order",
+            name="shipping_country",
         ),
     ]

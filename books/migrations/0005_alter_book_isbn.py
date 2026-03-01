@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0004_book_cover_image'),
+        ("books", "0004_book_cover_image"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='book',
-            name='isbn',
+            model_name="book",
+            name="isbn",
             field=models.CharField(blank=True, max_length=13, unique=True),
         ),
     ]
