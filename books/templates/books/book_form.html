@@ -1,0 +1,273 @@
+{% extends "books/base.html" %}
+
+{% block title %}Add New Book{% endblock %}
+
+{% block extra_css %}
+    .form-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-header {
+      margin-bottom: 24px;
+    }
+
+    .form-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .home-link {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .home-link::before {
+      content: "←";
+      margin-right: 4px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1rem;
+      background: var(--card-bg-alt);
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 3px 3px 0 var(--border-color);
+      outline: none;
+      transition: all 0.1s ease;
+    }
+
+    .form-group input[type="file"] {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .form-group input[type="checkbox"] {
+      width: auto;
+      box-shadow: none;
+      transform: none;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .checkbox-group label {
+      margin-bottom: 0;
+      cursor: pointer;
+    }
+
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .help-text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 2px solid var(--border-color);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      font-weight: 600;
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--card-bg-alt);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+      transition: all 0.1s ease;
+    }
+
+    .back-link:hover {
+      background: #d8e8ec;
+    }
+
+    .errorlist {
+      list-style: none;
+      color: #e63946;
+      font-size: 0.9rem;
+      margin-top: 6px;
+      padding: 0;
+    }
+
+    .field-error input,
+    .field-error textarea,
+    .field-error select {
+      border-color: #e63946;
+      box-shadow: 3px 3px 0 #e63946;
+    }
+
+    .field-error input:focus,
+    .field-error textarea:focus,
+    .field-error select:focus {
+      box-shadow: 2px 2px 0 #e63946;
+    }
+{% endblock extra_css %}
+
+{% block content %}
+  <div class="form-container">
+    <header class="site-header form-header">
+      <div class="form-header-row">
+        <h1 class="site-title">Add New Book</h1>
+        <a href="{% url 'books:book-list' %}" class="home-link">Home</a>
+      </div>
+    </header>
+
+    <div class="card">
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <div class="form-group {% if form.title.errors %}field-error{% endif %}">
+          <label for="{{ form.title.id_for_label }}">Title</label>
+          {{ form.title }}
+          {% if form.title.errors %}
+            <ul class="errorlist">
+              {% for error in form.title.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <div class="form-group {% if form.cover_image.errors %}field-error{% endif %}">
+          <label for="{{ form.cover_image.id_for_label }}">Cover Image</label>
+          {{ form.cover_image }}
+          <p class="help-text">Upload a book cover image. It will be cropped to 13:18 ratio with center gravity.</p>
+          {% if form.cover_image.errors %}
+            <ul class="errorlist">
+              {% for error in form.cover_image.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <div class="form-group {% if form.author.errors %}field-error{% endif %}">
+            <label for="{{ form.author.id_for_label }}">Author</label>
+            {{ form.author }}
+            {% if form.author.errors %}
+                <ul class="errorlist">
+                {% for error in form.author.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group {% if form.isbn.errors %}field-error{% endif %}">
+            <label for="{{ form.isbn.id_for_label }}">ISBN</label>
+            {{ form.isbn }}
+            {% if form.isbn.errors %}
+              <ul class="errorlist">
+                {% for error in form.isbn.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group {% if form.description.errors %}field-error{% endif %}">
+          <label for="{{ form.description.id_for_label }}">Description</label>
+          {{ form.description }}
+          {% if form.description.errors %}
+            <ul class="errorlist">
+              {% for error in form.description.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group {% if form.published_year.errors %}field-error{% endif %}">
+            <label for="{{ form.published_year.id_for_label }}">Published Year</label>
+            {{ form.published_year }}
+            {% if form.published_year.errors %}
+              <ul class="errorlist">
+                {% for error in form.published_year.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+
+          <div class="form-group {% if form.price.errors %}field-error{% endif %}">
+            <label for="{{ form.price.id_for_label }}">Price (£)</label>
+            {{ form.price }}
+            {% if form.price.errors %}
+              <ul class="errorlist">
+                {% for error in form.price.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group {% if form.is_available.errors %}field-error{% endif %}">
+          {{ form.is_available }}
+          <label for="{{ form.is_available.id_for_label }}">Available for purchase</label>
+          {% if form.is_available.errors %}
+            <ul class="errorlist">
+              {% for error in form.is_available.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success">Add Book</button>
+          <a href="{% url 'books:book-list' %}" class="back-link">← Back to Book List</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock content %}

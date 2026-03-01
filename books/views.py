@@ -4,13 +4,15 @@ import logging
 
 import stripe
 from django.conf import settings
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.mail import send_mail
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, TemplateView
+from django.views.generic import CreateView, ListView, TemplateView
 
 from .models import Book, Order
 
@@ -28,6 +30,29 @@ class BookListView(ListView):
 
     def get_queryset(self):
         return Book.objects.filter(is_available=True)
+
+
+class BookCreateView(UserPassesTestMixin, CreateView):
+    """Create a new book (admin only)."""
+
+    model = Book
+    template_name = "books/book_form.html"
+    fields = [
+        "title",
+        "author",
+        "isbn",
+        "description",
+        "published_year",
+        "price",
+        "is_available",
+        "cover_image",
+    ]
+    success_url = reverse_lazy("books:book-list")
+    login_url = "/admin/login/"
+
+    def test_func(self):
+        """Only allow admin users."""
+        return self.request.user.is_staff
 
 
 class BookPurchaseView(View):

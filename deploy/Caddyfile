@@ -3,6 +3,9 @@ yourdomain.com {
 		file_server /static/* {
 			root /var/www/bookstore
 		}
+		file_server /media/* {
+			root /var/www/bookstore
+		}
 		reverse_proxy 127.0.0.1:5000
 	}
 	encode zstd gzip

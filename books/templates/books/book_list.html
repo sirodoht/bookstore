@@ -45,9 +45,16 @@
       justify-content: center;
       font-size: 2rem;
       color: #adb5bd;
+      overflow: hidden;
     }
 
-    .book-cover::before {
+    .book-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .book-cover-placeholder::before {
       content: "📚";
     }
 
@@ -181,7 +188,13 @@
     <ul class="book-list">
       {% for book in books %}
          <li class="book-item">
-          <div class="book-cover"></div>
+          {% if book.cover_image %}
+            <div class="book-cover">
+              <img src="{{ book.cover_image.url }}" alt="{{ book.title }} cover">
+            </div>
+          {% else %}
+            <div class="book-cover book-cover-placeholder"></div>
+          {% endif %}
           <div class="book-details">
             <div class="book-title">{{ book.title }}</div>
             <div class="book-meta">
