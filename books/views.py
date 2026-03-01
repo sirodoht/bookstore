@@ -214,6 +214,12 @@ def stripe_webhook(request):
                     status=200,
                 )
 
+            # Initialize variables to avoid "possibly unbound" errors
+            order = None
+            needs_refund = False
+            book_title = ""
+            book_author = ""
+
             try:
                 with transaction.atomic():
                     try:
@@ -232,127 +238,60 @@ def stripe_webhook(request):
                         )
 
                     if not book.is_available:
-                        logger.warning(
-                            "Book %s is already sold (session: %s) - issuing refund",
-                            book_id,
-                            session_id,
-                        )
+                        # Capture book info before exiting atomic block
+                        book_title = book.title
+                        book_author = book.author
+                        needs_refund = True
+                    else:
+                        needs_refund = False
 
-                        # Refund the customer since book is already sold
-                        payment_intent = session.get("payment_intent")
-                        refund_status = "not attempted"
-                        if payment_intent:
-                            try:
-                                stripe.Refund.create(payment_intent=payment_intent)
-                                refund_status = "succeeded"
-                                logger.info(
-                                    "Refund created for payment_intent %s (session: %s)",
-                                    payment_intent,
-                                    session_id,
-                                )
-                            except stripe.error.StripeError as e:
-                                refund_status = f"failed: {str(e)}"
-                                logger.error(
-                                    "Failed to create refund for payment_intent %s (session: %s): %s",
-                                    payment_intent,
-                                    session_id,
-                                    str(e),
-                                )
-
-                        # Notify admin about the race condition and refund
-                        if settings.ADMINS:
-                            try:
-                                subject = "[bookstore] RACE CONDITION: Refund issued for sold book"
-                                body = f"""A race condition occurred during checkout.
-
-Book: {book.title} by {book.author} (ID: {book_id})
-Customer Email: {customer_email}
-Stripe Session: {session_id}
-Payment Intent: {payment_intent}
-Amount: £{Decimal(amount_total) / Decimal(100):.2f}
-
-Refund Status: {refund_status}
-
-The customer attempted to purchase a book that was already sold to another customer.
-A refund has been {"processed" if refund_status == "succeeded" else "attempted"}.
-"""
-                                send_mail(
-                                    subject,
-                                    body,
-                                    settings.DEFAULT_FROM_EMAIL,
-                                    settings.ADMINS,
-                                    fail_silently=False,
-                                )
-                                logger.info(
-                                    "Admin notification sent for race condition refund"
-                                )
-                            except Exception as e:
-                                logger.error(
-                                    "Failed to send admin notification: %s", str(e)
-                                )
-
-                        # Notify customer about the refund
-                        try:
-                            send_race_condition_refund_notification(
-                                book, customer_email, amount_total, refund_status
-                            )
-                            logger.info(
-                                "Customer refund notification sent for session %s",
+                    if not needs_refund:
+                        # Price mismatch check: log warning but proceed with order
+                        amount_paid = Decimal(amount_total) / Decimal(100)
+                        if amount_paid != book.price:
+                            logger.warning(
+                                "Price mismatch for book %s (session: %s): "
+                                "expected £%s, received £%s",
+                                book_id,
                                 session_id,
-                            )
-                        except Exception as e:
-                            logger.error(
-                                "Failed to send customer refund notification: %s",
-                                str(e),
+                                book.price,
+                                amount_paid,
                             )
 
-                        return JsonResponse(
-                            {
-                                "status": "success",
-                                "message": "Book already sold - refund issued",
-                            },
-                            status=200,
+                        book.is_available = False
+                        book.save()
+                        logger.info("Marked book %s as unavailable", book_id)
+
+                        order = Order.objects.create(
+                            book_title=book.title,
+                            book_author=book.author,
+                            book_isbn=book.isbn or "",
+                            book_price=book.price,
+                            stripe_session_id=session_id,
+                            customer_email=customer_email,
+                            amount_paid=amount_paid,
+                            shipping_name=shipping_details.get("name") or "",
+                            shipping_address_line1=address.get("line1") or "",
+                            shipping_address_line2=address.get("line2") or "",
+                            shipping_city=address.get("city") or "",
+                            shipping_state=address.get("state") or "",
+                            shipping_postal_code=address.get("postal_code") or "",
+                            shipping_country=address.get("country") or "",
                         )
+                        logger.info("Created order %s for book %s", order.id, book_id)
 
-                    # Price mismatch check: log warning but proceed with order
-                    amount_paid = Decimal(amount_total) / Decimal(100)
-                    if amount_paid != book.price:
-                        logger.warning(
-                            "Price mismatch for book %s (session: %s): "
-                            "expected £%s, received £%s",
-                            book_id,
-                            session_id,
-                            book.price,
-                            amount_paid,
-                        )
-
-                    book.is_available = False
-                    book.save()
-                    logger.info("Marked book %s as unavailable", book_id)
-
-                    order = Order.objects.create(
-                        book_title=book.title,
-                        book_author=book.author,
-                        book_isbn=book.isbn,
-                        book_price=book.price,
-                        stripe_session_id=session_id,
-                        customer_email=customer_email,
-                        amount_paid=amount_paid,
-                        shipping_name=shipping_details.get("name", ""),
-                        shipping_address_line1=address.get("line1", ""),
-                        shipping_address_line2=address.get("line2", ""),
-                        shipping_city=address.get("city", ""),
-                        shipping_state=address.get("state", ""),
-                        shipping_postal_code=address.get("postal_code", ""),
-                        shipping_country=address.get("country", ""),
+            except IntegrityError as e:
+                if "stripe_session_id" in str(e):
+                    logger.info(
+                        "Order for session %s already exists (duplicate webhook), returning 200",
+                        session_id,
                     )
-                    logger.info("Created order %s for book %s", order.id, book_id)
-
-            except IntegrityError:
-                logger.info(
-                    "IntegrityError: order for session %s already exists (race condition), returning 200",
-                    session_id,
-                )
+                else:
+                    logger.error(
+                        "IntegrityError creating order (session: %s): %s",
+                        session_id,
+                        e,
+                    )
                 return JsonResponse(
                     {"status": "success", "message": "Order already processed"},
                     status=200,
@@ -367,27 +306,114 @@ A refund has been {"processed" if refund_status == "succeeded" else "attempted"}
                     status=500,
                 )
 
+            # Handle race condition refund outside the atomic block
+            if needs_refund:
+                logger.warning(
+                    "Book %s is already sold (session: %s) - issuing refund",
+                    book_id,
+                    session_id,
+                )
+
+                # Refund the customer since book is already sold
+                payment_intent = session.get("payment_intent")
+                refund_status = "not attempted"
+                if payment_intent:
+                    try:
+                        stripe.Refund.create(payment_intent=payment_intent)
+                        refund_status = "succeeded"
+                        logger.info(
+                            "Refund created for payment_intent %s (session: %s)",
+                            payment_intent,
+                            session_id,
+                        )
+                    except stripe.error.StripeError as e:
+                        refund_status = f"failed: {str(e)}"
+                        logger.error(
+                            "Failed to create refund for payment_intent %s (session: %s): %s",
+                            payment_intent,
+                            session_id,
+                            str(e),
+                        )
+
+                # Notify admin about the race condition and refund (regardless of refund status)
+                if settings.ADMINS:
+                    try:
+                        subject = (
+                            "[bookstore] RACE CONDITION: Refund issued for sold book"
+                        )
+                        body = f"""A race condition occurred during checkout.
+
+Book: {book_title} by {book_author} (ID: {book_id})
+Customer Email: {customer_email}
+Stripe Session: {session_id}
+Payment Intent: {payment_intent}
+Amount: £{Decimal(amount_total) / Decimal(100):.2f}
+
+Refund Status: {refund_status}
+
+The customer attempted to purchase a book that was already sold to another customer.
+A refund has been {"processed" if refund_status == "succeeded" else "attempted"}.
+"""
+                        send_mail(
+                            subject,
+                            body,
+                            settings.DEFAULT_FROM_EMAIL,
+                            settings.ADMINS,
+                            fail_silently=False,
+                        )
+                        logger.info("Admin notification sent for race condition refund")
+                    except Exception as e:
+                        logger.error("Failed to send admin notification: %s", str(e))
+
+                # Notify customer about the refund
+                try:
+                    send_race_condition_refund_notification(
+                        book_title,
+                        book_author,
+                        customer_email,
+                        amount_total,
+                        refund_status,
+                    )
+                    logger.info(
+                        "Customer refund notification sent for session %s",
+                        session_id,
+                    )
+                except Exception as e:
+                    logger.error(
+                        "Failed to send customer refund notification: %s",
+                        str(e),
+                    )
+
+                return JsonResponse(
+                    {
+                        "status": "success",
+                        "message": "Book already sold - refund issued",
+                    },
+                    status=200,
+                )
+
             # Send emails outside the transaction to avoid 500 on SMTP failure
-            try:
-                send_purchase_confirmation(order)
-                logger.info("Sent purchase confirmation for order %s", order.id)
-            except Exception:
-                logger.exception(
-                    "Failed to send confirmation email for order %s", order.id
-                )
+            if order:
+                try:
+                    send_purchase_confirmation(order)
+                    logger.info("Sent purchase confirmation for order %s", order.id)
+                except Exception:
+                    logger.exception(
+                        "Failed to send confirmation email for order %s", order.id
+                    )
 
-            try:
-                send_admin_notification(order)
-                logger.info("Sent admin notification for order %s", order.id)
-            except Exception:
-                logger.exception(
-                    "Failed to send admin notification for order %s", order.id
-                )
+                try:
+                    send_admin_notification(order)
+                    logger.info("Sent admin notification for order %s", order.id)
+                except Exception:
+                    logger.exception(
+                        "Failed to send admin notification for order %s", order.id
+                    )
 
-            return JsonResponse(
-                {"status": "success", "message": "Order processed successfully"},
-                status=200,
-            )
+                return JsonResponse(
+                    {"status": "success", "message": "Order processed successfully"},
+                    status=200,
+                )
 
         except Exception as e:
             logger.exception(
@@ -499,17 +525,17 @@ Price: £{order.amount_paid:.2f}
 
 
 def send_race_condition_refund_notification(
-    book, customer_email, amount_total, refund_status
+    book_title, book_author, customer_email, amount_total, refund_status
 ):
     """Send notification to customer when refunded due to race condition."""
-    subject = f"[bookstore] Order Canceled - {book.title}"
+    subject = f"[bookstore] Order Canceled - {book_title}"
     amount = Decimal(amount_total) / Decimal(100)
     body = f"""We're sorry, but we were unable to complete your purchase.
 
 BOOK DETAILS
 -----
-Title: {book.title}
-Author: {book.author}
+Title: {book_title}
+Author: {book_author}
 Price: £{amount:.2f}
 
 WHAT HAPPENED
