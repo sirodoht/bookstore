@@ -2,6 +2,7 @@
 
 import json
 import logging
+import random
 from decimal import Decimal
 
 import stripe
@@ -16,6 +17,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView
 
+from . import adj
 from .models import Book
 
 logger = logging.getLogger(__name__)
@@ -50,6 +52,7 @@ class BookListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["sort"] = self.request.GET.get("sort")
+        context["adjective"] = random.choice(adj.ADJECTIVE_LIST)
         return context
 
 

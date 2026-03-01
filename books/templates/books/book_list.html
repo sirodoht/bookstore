@@ -15,7 +15,7 @@
 
 <header class="site-header">
     <div class="header-row">
-        <h1 class="site-title">Theo's Bookshop</h1>
+        <h1 class="site-title">Theo's <span class="adjective">{{ adjective }}</span> Bookshop</h1>
     </div>
 </header>
 
@@ -24,7 +24,7 @@
     <a href="{% url 'books:about' %}">about the bookshop</a>
 </div>
 
-<!--disable for now -->
+<!-- disable for now -->
 {% if False %}
 <div class="filter-bar card card-alt">
     <div class="filter-group">

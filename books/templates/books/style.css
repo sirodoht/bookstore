@@ -110,6 +110,12 @@ body {
     letter-spacing: -0.02em;
 }
 
+@media (max-width: 600px) {
+    .site-title {
+        font-size: 1.5rem;
+    }
+}
+
 /* Card Component */
 .card {
     background: var(--card-bg);
