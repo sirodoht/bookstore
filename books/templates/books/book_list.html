@@ -189,6 +189,39 @@
       margin-bottom: 16px;
       color: var(--text-muted);
     }
+
+    @media (max-width: 600px) {
+      .book-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .book-cover {
+        width: 160px;
+        height: 220px;
+      }
+
+      .book-details {
+        width: 100%;
+      }
+
+      .book-meta {
+        font-size: 0.75rem;
+      }
+
+      .book-meta .separator {
+        margin: 0 4px;
+      }
+
+      .book-footer {
+        justify-content: center;
+      }
+
+      .buy-button {
+        min-width: 100px;
+      }
+    }
 {% endblock extra_css %}
 
 {% block content %}
