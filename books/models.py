@@ -4,6 +4,7 @@ import io
 import os
 from uuid import uuid4
 
+from django.core.files.base import ContentFile
 from django.db import models
 from django.utils import timezone
 from PIL import Image, ImageOps
@@ -83,17 +84,21 @@ class Book(models.Model):
         # Crop the image
         img = img.crop((left, top, right, bottom))
 
-        # Resize to standard dimensions (390x540 for 13:18 at 30px per unit)
-        img = img.resize((390, 540), Image.Resampling.LANCZOS)
+        # Resize to standard dimensions (780x1080 for 13:18 at 60px per unit)
+        img = img.resize((780, 1080), Image.Resampling.LANCZOS)
 
-        # Save back to the field
+        # Save processed image to buffer with optimization
         output = io.BytesIO()
-        img.save(output, format="JPEG", quality=85)
+        img.save(output, format="JPEG", quality=85, optimize=True)
         output.seek(0)
 
-        # Update the field
-        self.cover_image.file = output
-        self.cover_image.name = self.cover_image.name
+        # Save back to storage (this actually writes the file)
+        original_name = self.cover_image.name
+        self.cover_image.save(
+            original_name,
+            ContentFile(output.read()),
+            save=False,
+        )
 
 
 class Order(models.Model):
