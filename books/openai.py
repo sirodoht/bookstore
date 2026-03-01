@@ -1,13 +1,61 @@
 """OpenAI module for analyzing book cover images."""
 
 import base64
+import io
 import json
 import logging
 
 import openai
 from django.conf import settings
+from PIL import Image, ImageOps
 
 logger = logging.getLogger(__name__)
+
+
+def _resize_image_for_analysis(image_data, max_size=1024):
+    """Resize image to reduce token usage while preserving quality for analysis.
+
+    Args:
+        image_data: Raw bytes of the image file
+        max_size: Maximum dimension (width or height) for the resized image
+
+    Returns:
+        bytes: Resized image data as JPEG
+    """
+    try:
+        img = Image.open(io.BytesIO(image_data))
+        img = ImageOps.exif_transpose(img)
+
+        # Convert to RGB if necessary
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+
+        # Resize if larger than max_size
+        width, height = img.size
+        if width > max_size or height > max_size:
+            ratio = min(max_size / width, max_size / height)
+            new_width = int(width * ratio)
+            new_height = int(height * ratio)
+            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
+        # Save to buffer with optimization
+        output = io.BytesIO()
+        img.save(output, format="JPEG", quality=85, optimize=True)
+        output.seek(0)
+
+        resized_data = output.read()
+        logger.debug(
+            "_resize_image_for_analysis: Resized from %d to %d bytes",
+            len(image_data),
+            len(resized_data),
+        )
+        return resized_data
+    except Exception as e:
+        logger.error(
+            "_resize_image_for_analysis: Failed to resize: %s", e, exc_info=True
+        )
+        # Return original if resize fails
+        return image_data
 
 
 def analyze_cover_image(image_data):
@@ -36,9 +84,12 @@ def analyze_cover_image(image_data):
             "error": "OpenAI not configured",
         }
 
+    # Resize image to reduce token usage
+    resized_data = _resize_image_for_analysis(image_data)
+
     try:
-        base64_image = base64.b64encode(image_data).decode("utf-8")
-        logger.debug("analyze_cover_image: Image encoded (%d bytes)", len(image_data))
+        base64_image = base64.b64encode(resized_data).decode("utf-8")
+        logger.debug("analyze_cover_image: Image encoded (%d bytes)", len(resized_data))
     except Exception as e:
         logger.error(
             "analyze_cover_image: Failed to encode image: %s", e, exc_info=True
