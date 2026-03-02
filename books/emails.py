@@ -26,7 +26,7 @@ Address: {order.shipping_address_line1}
             shipping_info += f"           {order.shipping_address_line2}\n"
         shipping_info += f"""City: {order.shipping_city}
 State/Province: {order.shipping_state}
-ZIP/Postal Code: {order.shipping_postal_code}
+Postal Code: {order.shipping_postal_code}
 Country: {order.shipping_country}"""
 
     isbn_info = (
@@ -197,7 +197,7 @@ Address: {order.shipping_address_line1}
             shipping_info += f"           {order.shipping_address_line2}\n"
         shipping_info += f"""City: {order.shipping_city}
 State/Province: {order.shipping_state}
-ZIP/Postal Code: {order.shipping_postal_code}
+Postal Code: {order.shipping_postal_code}
 Country: {order.shipping_country}"""
 
     isbn_info = (
@@ -207,7 +207,7 @@ Country: {order.shipping_country}"""
         else ""
     )
 
-    subject = f"[{settings.HOST}] Order Shipped - #{order.id}"
+    subject = f"[{settings.HOST}] Order Shipped - {order.book_title}"
     body = f"""Your order has been shipped!
 
 ORDER #{order.id}
