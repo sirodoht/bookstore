@@ -136,7 +136,29 @@ class Order(models.Model):
         return f"Order #{self.id} - {self.book_title} ({status})"
 
     def save(self, *args, **kwargs):
+        # Track if this is a new fulfillment
+        is_newly_fulfilled = False
+        if self.pk:
+            try:
+                old_order = Order.objects.get(pk=self.pk)
+                is_newly_fulfilled = self.fulfilled and not old_order.fulfilled
+            except Order.DoesNotExist:
+                pass
+        else:
+            is_newly_fulfilled = self.fulfilled
+
         # Auto-update fulfilled_at when marked as fulfilled
         if self.fulfilled and not self.fulfilled_at:
             self.fulfilled_at = timezone.now()
+
         super().save(*args, **kwargs)
+
+        # Send fulfillment emails when order is newly marked as fulfilled
+        if is_newly_fulfilled:
+            from .emails import (
+                send_admin_fulfillment_notification,
+                send_fulfillment_confirmation,
+            )
+
+            send_fulfillment_confirmation(self)
+            send_admin_fulfillment_notification(self)

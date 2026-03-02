@@ -116,6 +116,8 @@ Examples:
 
 Never push to the remote repository unless the user explicitly asks you to do so.
 
+When the user says "deploy", they mean commit and push.
+
 ## Project Structure
 
 ```

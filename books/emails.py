@@ -42,7 +42,7 @@ Country: {order.shipping_country}"""
 ORDER #{order.id}
 ---
 Order Date: {purchase_date}
-Status: Pending (we ship within 1 business day)
+Status: Pending (we ship within 2 business days)
 
 BOOK DETAILS
 ---
@@ -176,5 +176,116 @@ Thank you for your understanding
         body,
         settings.DEFAULT_FROM_EMAIL,
         [customer_email],
+        fail_silently=False,
+    )
+
+
+def send_fulfillment_confirmation(order):
+    """Send shipping confirmation to customer when order is fulfilled."""
+    shipped_date = order.fulfilled_at.strftime("%Y-%m-%d %H:%M:%S")
+
+    shipping_info = ""
+    if order.shipping_address_line1:
+        shipping_info = f"""
+
+SHIPPING ADDRESS
+---
+Name: {order.shipping_name}
+Address: {order.shipping_address_line1}
+"""
+        if order.shipping_address_line2:
+            shipping_info += f"           {order.shipping_address_line2}\n"
+        shipping_info += f"""City: {order.shipping_city}
+State/Province: {order.shipping_state}
+ZIP/Postal Code: {order.shipping_postal_code}
+Country: {order.shipping_country}"""
+
+    isbn_info = (
+        f"""ISBN: {order.book_isbn}
+"""
+        if order.book_isbn
+        else ""
+    )
+
+    subject = f"[{settings.HOST}] Order Shipped - #{order.id}"
+    body = f"""Your order has been shipped!
+
+ORDER #{order.id}
+---
+Shipped Date: {shipped_date}
+Status: Shipped
+
+BOOK DETAILS
+---
+Title: {order.book_title}
+Author: {order.book_author}
+{isbn_info}Price: £{order.amount_paid:.2f}
+{shipping_info}
+
+Thank you for your purchase! If you have any questions about your order just reply to this message.
+"""
+
+    send_mail(
+        subject,
+        body,
+        settings.DEFAULT_FROM_EMAIL,
+        [order.customer_email],
+        fail_silently=False,
+    )
+
+
+def send_admin_fulfillment_notification(order):
+    """Send notification to admin when order is marked as fulfilled."""
+    if not settings.ADMINS:
+        return
+
+    shipped_date = order.fulfilled_at.strftime("%Y-%m-%d %H:%M:%S")
+
+    shipping_info = ""
+    if order.shipping_address_line1:
+        shipping_info = f"""
+SHIPPING ADDRESS:
+Name: {order.shipping_name}
+Address: {order.shipping_address_line1}
+"""
+        if order.shipping_address_line2:
+            shipping_info += f"         {order.shipping_address_line2}\n"
+        shipping_info += f"""City: {order.shipping_city}
+State: {order.shipping_state}
+Postcode: {order.shipping_postal_code}
+Country: {order.shipping_country}"""
+
+    customer_display = (
+        order.shipping_name if order.shipping_name else order.customer_email
+    )
+
+    isbn_info_admin = (
+        f"""ISBN: {order.book_isbn}
+"""
+        if order.book_isbn
+        else ""
+    )
+
+    subject = f"[bookstore] Order marked as fulfilled: #{order.id} - {order.book_title}"
+    body = f"""Order #{order.id} has been marked as fulfilled.
+
+FULFILLMENT DETAILS
+---
+Shipped Date: {shipped_date}
+Customer: {customer_display}
+Customer Email: {order.customer_email}
+
+BOOK DETAILS:
+Title: {order.book_title}
+Author: {order.book_author}
+{isbn_info_admin}Price: £{order.amount_paid:.2f}
+{shipping_info}
+"""
+
+    send_mail(
+        subject,
+        body,
+        settings.DEFAULT_FROM_EMAIL,
+        settings.ADMINS,
         fail_silently=False,
     )
