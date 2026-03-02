@@ -113,6 +113,7 @@
 
 <!-- Lightbox overlay -->
 <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" aria-label="Close">×</button>
     <img src="" alt="Zoomed cover" />
 </div>
 {% endblock content %}
@@ -132,8 +133,17 @@
             });
         });
 
-        lightbox.addEventListener("click", function () {
-            this.classList.remove("active");
+        lightbox.addEventListener("click", function (e) {
+            if (e.target === lightbox) {
+                this.classList.remove("active");
+                lightboxImg.src = "";
+            }
+        });
+
+        const closeBtn = document.querySelector(".lightbox-close");
+        closeBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            lightbox.classList.remove("active");
             lightboxImg.src = "";
         });
 

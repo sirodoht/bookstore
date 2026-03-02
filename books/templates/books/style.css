@@ -613,6 +613,32 @@ ul {
     max-height: 90vh;
     object-fit: contain;
     border-radius: 4px;
+    cursor: default;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    background: var(--card-bg);
+    border: 3px solid var(--border-color);
+    border-radius: 50%;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    transition: all 0.15s ease;
+}
+
+.lightbox-close:hover {
+    background: var(--accent-orange);
+    transform: scale(1.05);
 }
 
 .results-container {
