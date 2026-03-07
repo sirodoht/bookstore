@@ -3,31 +3,44 @@
 {% block title %}About{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 400px; margin: auto;">
-    <p style="margin-top: 0;">
-        I thought it might be fun to sell some books, because I have too many and not
-        enough space.
-    </p>
-    <p>
-        For every book there is:
-    </p>
-    <ul>
-        <li>a title</li>
-        <li>the author's name</li>
-        <li>a picture of the exact book copy you will receive</li>
-        <li>a brief AI description</li>
-        <li>why I think you should buy it (written manually by me, no AI)</li>
-    </ul>
-    <p>
-        Shipping to the UK only due to current low levels of globalisation.
-        We ship within 2 business days.
-    </p>
-    <p>
-        — Theo
-    </p>
-    <p>
-         2/3/2026
-    </p>
+<div class="about-wrapper">
+    <div class="card">
+        <p style="margin-top: 0;">
+            I thought it might be fun to sell some books; I have too many and not
+            enough space.
+        </p>
+        <p>
+            For every book there is:
+        </p>
+        <ul>
+            <li>a title</li>
+            <li>the author's name</li>
+            <li>a picture of the exact book copy you will receive</li>
+            <li>a brief AI description</li>
+            <li>why I think you should buy it (written manually by me, no AI)</li>
+        </ul>
+        <p>
+            Shipping UK-only due to current low levels of globalisation.
+            Orders dispatched within 2 business days.
+        </p>
+        <p>
+            — Theo
+        </p>
+        <p>
+            March 2026
+        </p>
+
+        <div class="faq-section">
+            <p class="faq-heading">faq</p>
+            <p class="faq-question">If you love all these books as you say in each book's comment, why are you selling them?</p>
+            <p style="margin-bottom: 0;">Great question, and I have a most satisfying answer:</p>
+        </div>
+    </div>
+
+    <blockquote class="quote-box">
+        <p class="quote-text">books are like money, they work best when circulated</p>
+        <footer class="quote-attribution">— my dad</footer>
+    </blockquote>
 
     <div>
         <a href="{% url 'books:book-list' %}" class="home-link">Home</a>
