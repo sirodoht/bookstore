@@ -53,14 +53,14 @@ Run linting:
 
 ```sh
 uv run ruff check
-uv run djade main/templates/**/*.html --check
+uv run djade books/templates/**/*.html --check
 ```
 
 Run formatting:
 
 ```sh
 uv run ruff format
-uv run djade main/templates/**/*.html
+uv run djade books/templates/**/*.html
 ```
 
 ## Commit Message Style
