@@ -1114,56 +1114,6 @@ ul {
     margin: auto;
 }
 
-.faq-section {
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 2px dashed var(--accent-orange);
-}
-
-.faq-heading {
-    font-weight: 700;
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--accent-orange);
-    margin: 0 0 16px 0;
-}
-
-.faq-question {
-    font-weight: 600;
-    font-style: italic;
-    margin: 0 0 12px 0;
-    padding-left: 16px;
-    border-left: 3px solid var(--accent-blue);
-}
-
-.quote-box {
-    margin: 24px auto;
-    padding: 20px 24px;
-    background: var(--card-bg-alt);
-    border: 3px solid var(--border-color);
-    border-radius: 8px;
-    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
-}
-
-.quote-text {
-    margin: 0;
-    font-size: 1.1rem;
-    font-style: italic;
-    line-height: 1.5;
-}
-
-.quote-attribution {
-    margin: 12px 0 0 0;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    font-style: normal;
-}
-    max-width: 600px;
-    margin: 0 auto;
-}
-
 .form-header {
     margin-bottom: 24px;
 }
