@@ -1,7 +1,7 @@
 {% if banner_books %}
     <div class="announcement-banner">
         <div class="banner-track">
-            {% for _ in "123" %}
+            {% for _ in "12" %}
                 {% for book in banner_books %}
                     <a href="{% url 'books:book-detail' book.pk %}" class="banner-item">
                         {{ book.title }} — £{{ book.price }}
