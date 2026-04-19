@@ -4,12 +4,11 @@
 
 {% block content %}
 <div class="batch-upload-container">
-    <header class="site-header batch-header">
+    <a href="{% url 'books:book-list' %}" class="site-header batch-header">
         <div class="batch-header-row">
             <div class="site-title">Batch Upload Books</div>
-            <a href="{% url 'books:book-list' %}" class="home-link">Home</a>
         </div>
-    </header>
+    </a>
 
     <div class="card">
         <form

@@ -4,12 +4,11 @@
 
 {% block content %}
 <div class="results-container">
-    <header class="site-header results-header">
+    <a href="{% url 'books:book-list' %}" class="site-header results-header">
         <div class="results-header-row">
             <div class="site-title">Batch Upload Results</div>
-            <a href="{% url 'books:book-list' %}" class="home-link">Home</a>
         </div>
-    </header>
+    </a>
 
     <div class="summary-card card">
         <div class="summary-item">

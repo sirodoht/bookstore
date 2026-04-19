@@ -4,12 +4,11 @@
 
 {% block content %}
 <div class="form-container">
-    <header class="site-header form-header">
+    <a href="{% url 'books:book-list' %}" class="site-header form-header">
         <div class="form-header-row">
             <div class="site-title">Add new book</div>
-            <a href="{% url 'books:book-list' %}" class="home-link">Home</a>
         </div>
-    </header>
+    </a>
 
     <div class="card">
         <form
