@@ -3,14 +3,45 @@
         <div class="banner-track">
             {% for _ in "1234" %}
                 <div class="banner-group">
-                {% for book in banner_books %}
-                    <a href="{% url 'books:book-detail' book.pk %}" class="banner-item">
-                        {{ book.title }} — £{{ book.price }}
-                    </a>
-                    <span class="banner-separator">•</span>
-                {% endfor %}
+                    {% for book in banner_books %}
+                        <a href="{% url 'books:book-detail' book.pk %}" class="banner-item">
+                            {{ book.title }} — £{{ book.price }}
+                        </a>
+                        <span class="banner-separator">•</span>
+                    {% endfor %}
                 </div>
             {% endfor %}
         </div>
     </div>
+    <script>
+        (function () {
+            const banner = document.currentScript.previousElementSibling;
+            const pixelsPerSecond = 120;
+
+            function updateBannerDuration() {
+                const track = banner.querySelector(".banner-track");
+                const group = banner.querySelector(".banner-group");
+
+                if (!track || !group) {
+                    return;
+                }
+
+                const groupWidth = group.getBoundingClientRect().width;
+
+                if (!groupWidth) {
+                    return;
+                }
+
+                track.style.animationDuration = `${groupWidth / pixelsPerSecond}s`;
+            }
+
+            updateBannerDuration();
+            window.addEventListener("load", updateBannerDuration);
+            window.addEventListener("resize", updateBannerDuration);
+
+            if (document.fonts?.ready) {
+                document.fonts.ready.then(updateBannerDuration);
+            }
+        })();
+    </script>
 {% endif %}

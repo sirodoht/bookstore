@@ -10,6 +10,7 @@
     --text-dark: #1a1a2e;
     --text-muted: #555;
     --shadow-offset: 4px;
+    --banner-duration: 12s;
 }
 
 body {
@@ -59,7 +60,7 @@ body {
     height: 100%;
     white-space: nowrap;
     width: max-content;
-    animation: scroll-banner 12s linear infinite;
+    animation: scroll-banner var(--banner-duration) linear infinite;
 }
 
 .banner-group {
