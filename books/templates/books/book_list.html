@@ -40,6 +40,7 @@
         <a href="{% url 'books:book-list' %}{% if view == 'grid' %}?view=grid{% endif %}" class="filter-clear{% if not sort %} active{% endif %}">Random</a>
     </div>
     <div class="filter-group view-toggle">
+        <span class="filter-label">View:</span>
         <a href="?{% if sort %}sort={{ sort }}{% endif %}" class="filter-toggle{% if view != 'grid' %} active{% endif %}">List</a>
         <a href="?{% if sort %}sort={{ sort }}&{% endif %}view=grid" class="filter-toggle{% if view == 'grid' %} active{% endif %}">Grid</a>
     </div>
