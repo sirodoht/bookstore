@@ -69,7 +69,7 @@ class BookListView(ListView):
         context["view"] = self.request.GET.get("view", "list")
         context["adjective"] = random.choice(adj.ADJECTIVE_LIST)
         context["banner_books"] = Book.objects.filter(is_available=True).order_by(
-            "title"
+            "?"
         )
         return context
 
@@ -88,7 +88,7 @@ class BookDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context["adjective"] = random.choice(adj.ADJECTIVE_LIST)
         context["banner_books"] = Book.objects.filter(is_available=True).order_by(
-            "title"
+            "?"
         )
         return context
 
