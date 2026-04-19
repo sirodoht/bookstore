@@ -8,6 +8,11 @@ urlpatterns = [
     path("", views.BookListView.as_view(), name="book-list"),
     path("logout/", views.logout_view, name="logout"),
     path("book/<int:pk>/edit/", views.BookUpdateView.as_view(), name="book-update"),
+    path(
+        "book/<int:pk>/quick-edit/",
+        views.BookQuickEditView.as_view(),
+        name="book-quick-edit",
+    ),
     path("staff/add-one-book/", views.BookCreateView.as_view(), name="book-create"),
     path(
         "staff/add-many-books/",

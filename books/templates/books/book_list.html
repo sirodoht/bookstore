@@ -94,16 +94,23 @@
             <div class="book-title">
                 <a href="{% url 'books:book-detail' book.pk %}">{{ book.title }}</a>
                 {% if user.is_authenticated and user.is_staff %}
-                <a
-                    href="/admin/books/book/{{ book.pk }}/change/"
-                    style="
-                        font-size: 0.7rem;
-                        font-weight: normal;
-                        color: var(--text-muted);
-                        margin-left: 8px;
-                    "
-                    >(edit)</a
-                >
+                <span class="staff-actions">
+                    [
+                    <a
+                        href="/admin/books/book/{{ book.pk }}/change/"
+                        class="staff-action-link"
+                        >edit</a
+                    >
+                    <button
+                        type="button"
+                        class="staff-action-btn quick-edit-btn"
+                        data-book-id="{{ book.pk }}"
+                        data-book-title="{{ book.title|escapejs }}"
+                    >
+                        amazon/wob
+                    </button>
+                    ]
+                </span>
                 {% endif %}
             </div>
             <div class="book-meta">
@@ -181,6 +188,42 @@
     <button class="lightbox-close" aria-label="Close">×</button>
     <img src="" alt="Zoomed cover" />
 </div>
+
+<!-- Quick Edit Modal -->
+<div class="modal" id="quick-edit-modal">
+    <div class="modal-content">
+        <button class="modal-close" aria-label="Close">×</button>
+        <h3 class="modal-title">Edit Affiliate Links</h3>
+        <p class="modal-book-title" id="modal-book-title"></p>
+        <form id="quick-edit-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="modal-book-id" name="book_id" value="" />
+            <div class="form-group">
+                <label for="amazon_link">Amazon Link:</label>
+                <input
+                    type="url"
+                    id="amazon_link"
+                    name="amazon_link"
+                    placeholder="https://www.amazon.co.uk/..."
+                />
+            </div>
+            <div class="form-group">
+                <label for="worldofbooks_link">World of Books Link:</label>
+                <input
+                    type="url"
+                    id="worldofbooks_link"
+                    name="worldofbooks_link"
+                    placeholder="https://www.worldofbooks.com/..."
+                />
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+            </div>
+        </form>
+        <div id="modal-message" class="modal-message"></div>
+    </div>
+</div>
 {% endblock content %}
 
 {% block scripts %}
@@ -214,6 +257,114 @@
             if (e.key === "Escape") {
                 lightbox.classList.remove("active");
                 lightboxImg.src = "";
+            }
+        });
+
+        // Quick Edit Modal
+        const quickEditModal = document.getElementById("quick-edit-modal");
+        const quickEditForm = document.getElementById("quick-edit-form");
+        const modalBookId = document.getElementById("modal-book-id");
+        const modalBookTitle = document.getElementById("modal-book-title");
+        const amazonLinkInput = document.getElementById("amazon_link");
+        const worldofbooksLinkInput = document.getElementById("worldofbooks_link");
+        const modalMessage = document.getElementById("modal-message");
+        const quickEditBtns = document.querySelectorAll(".quick-edit-btn");
+
+        function showModal(message, isError) {
+            modalMessage.textContent = message;
+            modalMessage.className = "modal-message " + (isError ? "error" : "success");
+            setTimeout(function () {
+                modalMessage.textContent = "";
+                modalMessage.className = "modal-message";
+            }, 3000);
+        }
+
+        function openQuickEditModal(bookId, bookTitle) {
+            modalBookId.value = bookId;
+            modalBookTitle.textContent = bookTitle;
+            amazonLinkInput.value = "";
+            worldofbooksLinkInput.value = "";
+            modalMessage.textContent = "";
+
+            // Fetch current values
+            fetch("/book/" + bookId + "/quick-edit/", {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    amazonLinkInput.value = data.amazon_link || "";
+                    worldofbooksLinkInput.value = data.worldofbooks_link || "";
+                })
+                .catch(function (error) {
+                    console.error("Error fetching book data:", error);
+                });
+
+            quickEditModal.classList.add("active");
+            amazonLinkInput.focus();
+        }
+
+        function closeQuickEditModal() {
+            quickEditModal.classList.remove("active");
+        }
+
+        quickEditBtns.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                const bookId = this.getAttribute("data-book-id");
+                const bookTitle = this.getAttribute("data-book-title");
+                openQuickEditModal(bookId, bookTitle);
+            });
+        });
+
+        document.querySelector(".modal-close").addEventListener("click", closeQuickEditModal);
+        document.querySelector(".modal-cancel").addEventListener("click", closeQuickEditModal);
+
+        quickEditModal.addEventListener("click", function (e) {
+            if (e.target === quickEditModal) {
+                closeQuickEditModal();
+            }
+        });
+
+        quickEditForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const bookId = modalBookId.value;
+            const formData = new FormData(quickEditForm);
+
+            fetch("/book/" + bookId + "/quick-edit/", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (data.success) {
+                        showModal("Links saved successfully!", false);
+                        setTimeout(function () {
+                            closeQuickEditModal();
+                            // Refresh page to show updated buttons
+                            window.location.reload();
+                        }, 800);
+                    } else {
+                        showModal("Error saving links. Please try again.", true);
+                    }
+                })
+                .catch(function (error) {
+                    console.error("Error saving:", error);
+                    showModal("Error saving links. Please try again.", true);
+                });
+        });
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && quickEditModal.classList.contains("active")) {
+                closeQuickEditModal();
             }
         });
     });

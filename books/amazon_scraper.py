@@ -112,7 +112,9 @@ def lookup_open_library(isbn):
         cover = book_data.get("cover", {})
         if cover:
             # Prefer large cover
-            result["cover_url"] = cover.get("large") or cover.get("medium") or cover.get("small")
+            result["cover_url"] = (
+                cover.get("large") or cover.get("medium") or cover.get("small")
+            )
 
         return result
 
@@ -157,7 +159,9 @@ def scrape_book_data(url):
                 openlib_data = lookup_open_library(isbn_from_url)
                 if openlib_data:
                     return openlib_data
-            return {"error": "Amazon is temporarily blocking requests and no fallback data available."}
+            return {
+                "error": "Amazon is temporarily blocking requests and no fallback data available."
+            }
 
         if response.status_code == 404:
             return {"error": "Product page not found (404)"}
@@ -198,7 +202,9 @@ def scrape_book_data(url):
                 return openlib_data
 
         if is_captcha:
-            return {"error": "Amazon is requiring CAPTCHA verification. Trying Open Library fallback..."}
+            return {
+                "error": "Amazon is requiring CAPTCHA verification. Trying Open Library fallback..."
+            }
         return {"error": "Amazon is temporarily blocking requests."}
 
     # Extract title - try multiple selectors
@@ -223,7 +229,9 @@ def scrape_book_data(url):
 
     # Fallback: look for title in meta tags
     if not title:
-        meta_title = soup.find("meta", property="og:title") or soup.find("meta", attrs={"name": "title"})
+        meta_title = soup.find("meta", property="og:title") or soup.find(
+            "meta", attrs={"name": "title"}
+        )
         if meta_title:
             title = meta_title.get("content", "").strip()
             # Remove " | Amazon.co.uk" or similar suffixes
@@ -270,9 +278,13 @@ def scrape_book_data(url):
 
     if not author:
         # Try to find in feature bullets or description
-        author_elem = soup.find(string=re.compile(r"by\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)", re.I))
+        author_elem = soup.find(
+            string=re.compile(r"by\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)", re.I)
+        )
         if author_elem:
-            match = re.search(r"by\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)", author_elem, re.I)
+            match = re.search(
+                r"by\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)", author_elem, re.I
+            )
             if match:
                 author = match.group(1)
 
@@ -351,7 +363,11 @@ def scrape_book_data(url):
         for img in soup.find_all("img"):
             src = img.get("src", "")
             alt = img.get("alt", "")
-            if ("book" in alt.lower() or "cover" in alt.lower()) and "amazon" in src and ("_SL" in src or "images-na" in src):
+            if (
+                ("book" in alt.lower() or "cover" in alt.lower())
+                and "amazon" in src
+                and ("_SL" in src or "images-na" in src)
+            ):
                 cover_url = src
                 break
 

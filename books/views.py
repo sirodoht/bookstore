@@ -135,6 +135,46 @@ class BookUpdateView(UserPassesTestMixin, View):
         return redirect(f"/admin/books/book/{pk}/change/")
 
 
+class BookQuickEditView(UserPassesTestMixin, View):
+    """Quick edit Amazon and World of Books links (admin only)."""
+
+    login_url = "/admin/login/"
+
+    def test_func(self):
+        """Only allow admin users."""
+        return self.request.user.is_staff
+
+    def get(self, request, pk):
+        """Return current link values for a book."""
+        book = get_object_or_404(Book, pk=pk)
+        return JsonResponse(
+            {
+                "amazon_link": book.amazon_link or "",
+                "worldofbooks_link": book.worldofbooks_link or "",
+            }
+        )
+
+    def post(self, request, pk):
+        """Update Amazon and World of Books links for a book."""
+        book = get_object_or_404(Book, pk=pk)
+
+        amazon_link = request.POST.get("amazon_link", "").strip()
+        worldofbooks_link = request.POST.get("worldofbooks_link", "").strip()
+
+        # Update fields (empty string becomes None/NULL)
+        book.amazon_link = amazon_link if amazon_link else None
+        book.worldofbooks_link = worldofbooks_link if worldofbooks_link else None
+        book.save()
+
+        return JsonResponse(
+            {
+                "success": True,
+                "amazon_link": book.amazon_link or "",
+                "worldofbooks_link": book.worldofbooks_link or "",
+            }
+        )
+
+
 class BookPurchaseView(View):
     """Handle book purchase and redirect to Stripe Checkout."""
 

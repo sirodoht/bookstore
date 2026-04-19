@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0014_book_amazon_link'),
+        ("books", "0014_book_amazon_link"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='book',
-            name='worldofbooks_link',
-            field=models.URLField(blank=True, help_text='World of Books affiliate link for external purchase', null=True),
+            model_name="book",
+            name="worldofbooks_link",
+            field=models.URLField(
+                blank=True,
+                help_text="World of Books affiliate link for external purchase",
+                null=True,
+            ),
         ),
     ]
