@@ -47,12 +47,12 @@
 </div>
 
 {% if all_tags %}
-<div class="tags-bar">
-    <span class="tags-label">Tags:</span>
-    <div class="tags-list">
-        <a href="{% url 'books:book-list' %}{% if sort %}?sort={{ sort }}{% endif %}{% if view == 'grid' %}{% if sort %}&{% else %}?{% endif %}view=grid{% endif %}" class="tag-chip{% if not active_tag %} active{% endif %}">All</a>
+<div class="filter-bar card card-alt">
+    <div class="filter-group">
+        <span class="filter-label">Tags:</span>
+        <a href="{% url 'books:book-list' %}{% if sort %}?sort={{ sort }}{% endif %}{% if view == 'grid' %}{% if sort %}&{% else %}?{% endif %}view=grid{% endif %}" class="filter-toggle{% if not active_tag %} active{% endif %}">all</a>
         {% for tag in all_tags %}
-        <a href="?tag={{ tag.slug }}{% if sort %}&sort={{ sort }}{% endif %}{% if view == 'grid' %}&view=grid{% endif %}" class="tag-chip{% if active_tag == tag.slug %} active{% endif %}">{{ tag.name }}</a>
+        <a href="?tag={{ tag.slug }}{% if sort %}&sort={{ sort }}{% endif %}{% if view == 'grid' %}&view=grid{% endif %}" class="filter-toggle{% if active_tag == tag.slug %} active{% endif %}">{{ tag.name }}</a>
         {% endfor %}
     </div>
 </div>
