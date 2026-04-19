@@ -1,7 +1,14 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Book, Order
+from .models import Book, Order, Tag
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ["name", "slug"]
+    search_fields = ["name"]
+    prepopulated_fields = {"slug": ["name"]}
 
 
 @admin.register(Book)
@@ -15,8 +22,9 @@ class BookAdmin(admin.ModelAdmin):
         "is_available",
     ]
     search_fields = ["title", "author", "isbn"]
-    list_filter = ["published_year", "author", "is_available"]
+    list_filter = ["published_year", "author", "is_available", "tags"]
     list_editable = ["is_available"]
+    filter_horizontal = ["tags"]
     actions = ["make_available", "make_unavailable"]
 
     @admin.action(description="Mark selected books as available")

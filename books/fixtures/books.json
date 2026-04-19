@@ -1,5 +1,45 @@
 [
     {
+        "model": "books.tag",
+        "pk": 1,
+        "fields": {
+            "name": "Fiction",
+            "slug": "fiction"
+        }
+    },
+    {
+        "model": "books.tag",
+        "pk": 2,
+        "fields": {
+            "name": "Classic",
+            "slug": "classic"
+        }
+    },
+    {
+        "model": "books.tag",
+        "pk": 3,
+        "fields": {
+            "name": "Dystopian",
+            "slug": "dystopian"
+        }
+    },
+    {
+        "model": "books.tag",
+        "pk": 4,
+        "fields": {
+            "name": "Romance",
+            "slug": "romance"
+        }
+    },
+    {
+        "model": "books.tag",
+        "pk": 5,
+        "fields": {
+            "name": "Coming of Age",
+            "slug": "coming-of-age"
+        }
+    },
+    {
         "model": "books.book",
         "pk": 1,
         "fields": {
@@ -9,7 +49,10 @@
             "description": "A story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan, set in the Jazz Age of the 1920s.",
             "published_year": 1925,
             "price": "10.00",
-            "is_available": true
+            "is_available": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z",
+            "tags": [1, 2]
         }
     },
     {
@@ -22,7 +65,10 @@
             "description": "A novel about the serious issues of rape and racial inequality, told through the eyes of young Scout Finch in Depression-era Alabama.",
             "published_year": 1960,
             "price": "10.00",
-            "is_available": true
+            "is_available": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z",
+            "tags": [1, 2, 5]
         }
     },
     {
@@ -35,7 +81,10 @@
             "description": "A dystopian social science fiction novel that follows the life of Winston Smith as he rebels against the totalitarian Party led by Big Brother.",
             "published_year": 1949,
             "price": "10.00",
-            "is_available": true
+            "is_available": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z",
+            "tags": [1, 3, 2]
         }
     },
     {
@@ -48,7 +97,10 @@
             "description": "A romantic novel that charts the emotional development of the protagonist Elizabeth Bennet, who learns the error of making hasty judgments.",
             "published_year": 1813,
             "price": "10.00",
-            "is_available": true
+            "is_available": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z",
+            "tags": [1, 2, 4]
         }
     },
     {
@@ -61,7 +113,10 @@
             "description": "A story about teenage angst and alienation, narrated by the cynical Holden Caulfield after he is expelled from prep school.",
             "published_year": 1951,
             "price": "10.00",
-            "is_available": true
+            "is_available": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z",
+            "tags": [1, 5]
         }
     }
 ]

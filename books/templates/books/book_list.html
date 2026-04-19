@@ -28,23 +28,35 @@
 <div class="filter-bar card card-alt">
     <div class="filter-group">
         <span class="filter-label">Title:</span>
-        <a href="?sort=title_asc{% if view == 'grid' %}&view=grid{% endif %}" class="filter-toggle{% if sort == 'title_asc' %} active{% endif %}">A-Z</a>
-        <a href="?sort=title_desc{% if view == 'grid' %}&view=grid{% endif %}" class="filter-toggle{% if sort == 'title_desc' %} active{% endif %}">Z-A</a>
+        <a href="?sort=title_asc{% if view == 'grid' %}&view=grid{% endif %}{% if active_tag %}&tag={{ active_tag }}{% endif %}" class="filter-toggle{% if sort == 'title_asc' %} active{% endif %}">A-Z</a>
+        <a href="?sort=title_desc{% if view == 'grid' %}&view=grid{% endif %}{% if active_tag %}&tag={{ active_tag }}{% endif %}" class="filter-toggle{% if sort == 'title_desc' %} active{% endif %}">Z-A</a>
     </div>
     <div class="filter-group">
         <span class="filter-label">Author:</span>
-        <a href="?sort=author_asc{% if view == 'grid' %}&view=grid{% endif %}" class="filter-toggle{% if sort == 'author_asc' %} active{% endif %}">A-Z</a>
-        <a href="?sort=author_desc{% if view == 'grid' %}&view=grid{% endif %}" class="filter-toggle{% if sort == 'author_desc' %} active{% endif %}">Z-A</a>
+        <a href="?sort=author_asc{% if view == 'grid' %}&view=grid{% endif %}{% if active_tag %}&tag={{ active_tag }}{% endif %}" class="filter-toggle{% if sort == 'author_asc' %} active{% endif %}">A-Z</a>
+        <a href="?sort=author_desc{% if view == 'grid' %}&view=grid{% endif %}{% if active_tag %}&tag={{ active_tag }}{% endif %}" class="filter-toggle{% if sort == 'author_desc' %} active{% endif %}">Z-A</a>
     </div>
     <div class="filter-group">
-        <a href="{% url 'books:book-list' %}{% if view == 'grid' %}?view=grid{% endif %}" class="filter-clear{% if not sort %} active{% endif %}">Random</a>
+        <a href="{% url 'books:book-list' %}{% if view == 'grid' or active_tag %}?{% endif %}{% if view == 'grid' %}view=grid{% endif %}{% if view == 'grid' and active_tag %}&{% endif %}{% if active_tag %}tag={{ active_tag }}{% endif %}" class="filter-clear{% if not sort %} active{% endif %}">Random</a>
     </div>
     <div class="filter-group view-toggle">
         <span class="filter-label">View:</span>
-        <a href="?{% if sort %}sort={{ sort }}{% endif %}" class="filter-toggle{% if view != 'grid' %} active{% endif %}">List</a>
-        <a href="?{% if sort %}sort={{ sort }}&{% endif %}view=grid" class="filter-toggle{% if view == 'grid' %} active{% endif %}">Grid</a>
+        <a href="?{% if sort %}sort={{ sort }}{% endif %}{% if active_tag %}{% if sort %}&{% endif %}tag={{ active_tag }}{% endif %}" class="filter-toggle{% if view != 'grid' %} active{% endif %}">List</a>
+        <a href="?{% if sort %}sort={{ sort }}&{% endif %}view=grid{% if active_tag %}&tag={{ active_tag }}{% endif %}" class="filter-toggle{% if view == 'grid' %} active{% endif %}">Grid</a>
     </div>
 </div>
+
+{% if all_tags %}
+<div class="tags-bar">
+    <span class="tags-label">Tags:</span>
+    <div class="tags-list">
+        <a href="{% url 'books:book-list' %}{% if sort %}?sort={{ sort }}{% endif %}{% if view == 'grid' %}{% if sort %}&{% else %}?{% endif %}view=grid{% endif %}" class="tag-chip{% if not active_tag %} active{% endif %}">All</a>
+        {% for tag in all_tags %}
+        <a href="?tag={{ tag.slug }}{% if sort %}&sort={{ sort }}{% endif %}{% if view == 'grid' %}&view=grid{% endif %}" class="tag-chip{% if active_tag == tag.slug %} active{% endif %}">{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 
 {% if books %}
 {% if view == 'grid' %}

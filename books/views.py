@@ -25,7 +25,7 @@ from django.views.generic import (
 )
 
 from . import adj
-from .models import Book
+from .models import Book, Tag
 
 
 def logout_view(request):
@@ -49,6 +49,11 @@ class BookListView(ListView):
     def get_queryset(self):
         queryset = Book.objects.filter(is_available=True)
         sort = self.request.GET.get("sort")
+        tag_slug = self.request.GET.get("tag")
+
+        # Filter by tag if specified
+        if tag_slug:
+            queryset = queryset.filter(tags__slug=tag_slug)
 
         if sort == "title_asc":
             queryset = queryset.order_by("title")
@@ -68,9 +73,9 @@ class BookListView(ListView):
         context["sort"] = self.request.GET.get("sort")
         context["view"] = self.request.GET.get("view", "list")
         context["adjective"] = random.choice(adj.ADJECTIVE_LIST)
-        context["banner_books"] = Book.objects.filter(is_available=True).order_by(
-            "?"
-        )
+        context["banner_books"] = Book.objects.filter(is_available=True).order_by("?")
+        context["all_tags"] = Tag.objects.all()
+        context["active_tag"] = self.request.GET.get("tag")
         return context
 
 
@@ -87,9 +92,7 @@ class BookDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["adjective"] = random.choice(adj.ADJECTIVE_LIST)
-        context["banner_books"] = Book.objects.filter(is_available=True).order_by(
-            "?"
-        )
+        context["banner_books"] = Book.objects.filter(is_available=True).order_by("?")
         return context
 
 
@@ -108,6 +111,7 @@ class BookCreateView(UserPassesTestMixin, CreateView):
         "price",
         "is_available",
         "cover_image",
+        "tags",
     ]
     success_url = reverse_lazy("books:book-list")
     login_url = "/admin/login/"
@@ -132,6 +136,7 @@ class BookUpdateView(UserPassesTestMixin, UpdateView):
         "price",
         "is_available",
         "cover_image",
+        "tags",
     ]
     success_url = reverse_lazy("books:book-list")
     login_url = "/admin/login/"
@@ -279,8 +284,9 @@ def batch_upload_stream(request):
                     except (ValueError, AttributeError):
                         pass
 
-                # Create the book with is_available=False
-                book = Book.objects.create(
+                # Save the book and uploaded cover in one model save so the image
+                # is processed once before it is written to storage.
+                book = Book(
                     title=analysis.get("title", "") or "Untitled",
                     author=analysis.get("author", "") or "Unknown Author",
                     description=analysis.get("description", ""),
@@ -289,13 +295,10 @@ def batch_upload_stream(request):
                     is_available=False,
                 )
 
-                # Save the cover image
                 if image_data:
-                    book.cover_image.save(
-                        file.name,
-                        ContentFile(image_data),
-                        save=True,
-                    )
+                    book.cover_image = ContentFile(image_data, name=file.name)
+
+                book.save()
 
                 result["status"] = "completed"
                 result["book_id"] = book.id

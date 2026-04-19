@@ -7,6 +7,7 @@ from uuid import uuid4
 from django.core.files.base import ContentFile
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
 from PIL import Image, ImageOps
 
 
@@ -14,6 +15,25 @@ def book_cover_path(instance, filename):
     """Generate unique path for book cover images."""
     ext = os.path.splitext(filename)[1].lower()
     return f"book_covers/{uuid4()}{ext}"
+
+
+class Tag(models.Model):
+    """Tag for categorizing books."""
+
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=50, unique=True, blank=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        """Auto-generate slug from name."""
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
 class Book(models.Model):
@@ -35,6 +55,7 @@ class Book(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name="books")
 
     class Meta:
         ordering = ["title"]
@@ -44,7 +65,7 @@ class Book(models.Model):
 
     def save(self, *args, **kwargs):
         """Override save to process cover image."""
-        if self.cover_image:
+        if self.cover_image and not self.cover_image._committed:
             self._process_cover_image()
         super().save(*args, **kwargs)
 
@@ -95,13 +116,10 @@ class Book(models.Model):
         img.save(output, format="JPEG", quality=85, optimize=True)
         output.seek(0)
 
-        # Save back to storage (this actually writes the file)
-        original_name = self.cover_image.name
-        self.cover_image.save(
-            original_name,
-            ContentFile(output.read()),
-            save=False,
-        )
+        # Replace the uploaded file in-memory so Django writes only the final image.
+        original_stem = os.path.splitext(os.path.basename(self.cover_image.name))[0]
+        processed_name = f"{original_stem or 'cover'}.jpg"
+        self.cover_image = ContentFile(output.read(), name=processed_name)
 
 
 class Order(models.Model):

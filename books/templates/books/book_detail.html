@@ -51,6 +51,14 @@
                 {% endif %}
             </div>
 
+            {% if book.tags.all %}
+            <div class="book-tags">
+                {% for tag in book.tags.all %}
+                <a href="{% url 'books:book-list' %}?tag={{ tag.slug }}" class="book-tag">{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             {% if book.description %}
             <div class="book-description">
                 {{ book.description }}
