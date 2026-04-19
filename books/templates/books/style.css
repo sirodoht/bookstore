@@ -321,7 +321,7 @@ ul {
 
 /* Staff Bar */
 .staff-bar {
-    margin: -12px 0 16px 0;
+    margin: 0 0 16px 0;
     display: flex;
     gap: 24px;
     align-items: center;
@@ -333,6 +333,7 @@ ul {
     color: var(--text-muted);
     border: none;
     text-decoration: underline;
+    text-align: center;
 }
 
 .staff-bar a:hover {
@@ -1057,11 +1058,6 @@ ul {
 .upload-area.has-files {
     border-style: solid;
     border-color: var(--accent-green);
-}
-
-.upload-icon {
-    font-size: 3rem;
-    margin-bottom: 16px;
 }
 
 .upload-text {

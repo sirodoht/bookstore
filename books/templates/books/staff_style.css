@@ -607,11 +607,6 @@ a {
     border-color: var(--accent-green);
 }
 
-.upload-icon {
-    font-size: 3rem;
-    margin-bottom: 16px;
-}
-
 .upload-text {
     font-size: 1.1rem;
     font-weight: 600;
