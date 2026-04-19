@@ -71,11 +71,6 @@ body {
 .announcement-banner:hover .banner-track {
     animation-play-state: paused;
 }
-@media (max-width: 600px) {
-    .banner-track {
-        animation-duration: 5s;
-    }
-}
 
 .banner-item {
     display: inline-flex;
