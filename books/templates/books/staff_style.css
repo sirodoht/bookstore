@@ -68,114 +68,34 @@ body {
     background: var(--card-bg-alt);
 }
 
-/* Staff Layout */
-.staff-layout {
+/* Staff Nav - Uses staff-bar styles from style.css */
+.staff-nav {
+    margin: 0 0 16px 0;
     display: flex;
-    gap: 32px;
-}
-
-@media (max-width: 768px) {
-    .staff-layout {
-        flex-direction: column;
-        gap: 24px;
-    }
-}
-
-.staff-sidebar {
-    width: 260px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
     gap: 24px;
+    align-items: center;
 }
 
-@media (max-width: 768px) {
-    .staff-sidebar {
-        width: 100%;
+@media (max-width: 600px) {
+    .staff-nav {
+        flex-wrap: wrap;
+        gap: 12px;
     }
 }
 
-.staff-sidebar-header {
-    padding-bottom: 16px;
-    border-bottom: 2px solid var(--border-color);
-}
-
-.staff-brand {
-    display: block;
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-    color: var(--text-dark);
+.staff-nav a {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border: none;
+    text-align: center;
+    border: 1px solid var(--accent-orange);
+    padding: 5px;
     text-decoration: none;
 }
 
-.staff-brand:hover {
-    color: var(--accent-green);
-}
-
-.staff-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.staff-menu-section {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.staff-menu-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    font-size: 0.95rem;
-    color: var(--text-dark);
-    text-decoration: none;
-    transition: background 0.15s ease;
-}
-
-.staff-menu-item:hover,
-.staff-menu-item.active {
+.staff-nav a:hover {
     background: var(--accent-orange);
-}
-
-.staff-menu-item.active {
-    font-weight: 600;
-}
-
-.staff-user {
-    margin-top: auto;
-    padding-top: 16px;
-    border-top: 2px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.staff-user-name {
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.staff-logout {
-    font-size: 0.85rem;
-    padding: 6px 12px;
-    background: transparent;
-    border: 2px solid var(--border-color);
-    cursor: pointer;
-    font-family: inherit;
-}
-
-.staff-logout:hover {
-    background: var(--card-bg);
-}
-
-.staff-main {
-    flex: 1;
-    min-width: 0;
 }
 
 /* Page Header */
