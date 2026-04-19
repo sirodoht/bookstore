@@ -6,11 +6,15 @@ app_name = "books"
 
 urlpatterns = [
     path("", views.BookListView.as_view(), name="book-list"),
-    path("staff/new/", views.BookCreateView.as_view(), name="book-create"),
     path("book/<int:pk>/edit/", views.BookUpdateView.as_view(), name="book-update"),
-    path("staff/new-batch/", views.BookBatchUploadView.as_view(), name="batch-upload"),
+    path("staff/add-one-book/", views.BookCreateView.as_view(), name="book-create"),
     path(
-        "staff/new-batch/stream/",
+        "staff/add-many-books/",
+        views.BookBatchUploadView.as_view(),
+        name="batch-upload",
+    ),
+    path(
+        "staff/add-many-books/stream/",
         views.batch_upload_stream,
         name="batch-upload-stream",
     ),

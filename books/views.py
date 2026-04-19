@@ -85,7 +85,7 @@ class BookCreateView(UserPassesTestMixin, CreateView):
     """Create a new book (admin only)."""
 
     model = Book
-    template_name = "books/book_form.html"
+    template_name = "books/staff_book_form.html"
     fields = [
         "title",
         "author",
@@ -109,7 +109,7 @@ class BookUpdateView(UserPassesTestMixin, UpdateView):
     """Update an existing book (admin only)."""
 
     model = Book
-    template_name = "books/book_form.html"
+    template_name = "books/staff_book_form.html"
     fields = [
         "title",
         "author",
@@ -196,7 +196,7 @@ class AboutView(TemplateView):
 class BookBatchUploadView(UserPassesTestMixin, TemplateView):
     """Display batch upload form for multiple book covers (admin only)."""
 
-    template_name = "books/batch_upload.html"
+    template_name = "books/staff_batch_upload.html"
     login_url = "/admin/login/"
 
     def test_func(self):
@@ -373,4 +373,4 @@ def batch_results(request):
         "failed_count": len(failed_uploads),
     }
 
-    return render(request, "books/batch_results.html", context)
+    return render(request, "books/staff_batch_results.html", context)

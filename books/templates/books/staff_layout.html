@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block staff_title %}{% endblock %}</title>
+        <style>
+            {% include "books/staff_style.css" %}
+        </style>
+    </head>
+    <body>
+        <div class="page-wrapper">
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="staff-layout">
+                <aside class="staff-sidebar">
+                    <div class="staff-sidebar-header">
+                        <a href="{% url 'books:book-list' %}" class="staff-brand">Theo's Bookshop</a>
+                    </div>
+
+                    <nav class="staff-menu">
+                        <div class="staff-menu-section">
+                            <a href="{% url 'books:book-create' %}" class="staff-menu-item{% if request.resolver_match.url_name == 'book-create' %} active{% endif %}">Add one book</a>
+                            <a href="{% url 'books:batch-upload' %}" class="staff-menu-item{% if request.resolver_match.url_name == 'batch-upload' %} active{% endif %}">Add many books</a>
+                        </div>
+
+                        <div class="staff-menu-section">
+                            <a href="/admin/" class="staff-menu-item">Django Admin</a>
+                            <a href="{% url 'books:book-list' %}" class="staff-menu-item">Public Site</a>
+                        </div>
+                    </nav>
+
+                    {% if user.is_authenticated %}
+                    <div class="staff-user">
+                        <span class="staff-user-name">{{ user.get_username }}</span>
+                        <form method="post" action="{% url 'admin:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="staff-logout">Logout</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </aside>
+
+                <main class="staff-main">
+                    {% block staff_content %}
+                    {% endblock staff_content %}
+                </main>
+            </div>
+        </div>
+
+        {% block scripts %}
+        {% endblock scripts %}
+    </body>
+</html>

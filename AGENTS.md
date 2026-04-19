@@ -96,6 +96,23 @@ from .models import Book, Order
 - 4-space indentation in templates
 - Use `{% url %}` tag for all internal links
 
+### CSS Rules
+
+- All rules for the same selector should be close to each other. Responsive adjustments should be right after main rules.
+
+```css
+.book-detail-cover {
+    width: 260px;
+    height: 360px;
+}
+@media (max-width: 600px) {
+    .book-detail-cover {
+        width: 200px;
+        height: 280px;
+    }
+}
+```
+
 ## Commit Message Style
 
 Use [Conventional Commits](https://www.conventionalcommits.org/):
