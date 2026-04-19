@@ -27,6 +27,7 @@ body {
 @media (max-width: 600px) {
     body {
         padding: 16px;
+        padding-top: 56px;
     }
 }
 
@@ -46,6 +47,11 @@ body {
     overflow: hidden;
     height: 44px;
 }
+@media (max-width: 600px) {
+    .announcement-banner {
+        height: 40px;
+    }
+}
 
 .banner-track {
     display: flex;
@@ -57,6 +63,11 @@ body {
 
 .announcement-banner:hover .banner-track {
     animation-play-state: paused;
+}
+@media (max-width: 600px) {
+    .banner-track {
+        animation-duration: 5s;
+    }
 }
 
 .banner-item {
@@ -76,6 +87,11 @@ body {
     background: transparent;
     color: var(--accent-orange);
 }
+@media (max-width: 600px) {
+    .banner-item {
+        font-size: 0.9rem;
+    }
+}
 
 .banner-separator {
     display: inline-flex;
@@ -92,20 +108,6 @@ body {
     }
     100% {
         transform: translateX(-33.333%);
-    }
-}
-
-@media (max-width: 600px) {
-    .announcement-banner {
-        height: 40px;
-    }
-
-    .banner-item {
-        font-size: 0.9rem;
-    }
-
-    body {
-        padding-top: 56px;
     }
 }
 
@@ -245,6 +247,7 @@ h2 {
     cursor: pointer;
     transition: all 0.1s ease;
     box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+    box-sizing: border-box;
 }
 
 .btn:active {
@@ -989,9 +992,7 @@ ul {
     .actions-bar {
         flex-direction: column;
     }
-}
 
-@media (max-width: 600px) {
     .actions-bar .btn,
     .actions-bar .back-link {
         width: 100%;
@@ -1340,9 +1341,7 @@ ul {
     .form-actions {
         flex-direction: column;
     }
-}
 
-@media (max-width: 600px) {
     .form-actions .btn,
     .form-actions .back-link {
         width: 100%;
