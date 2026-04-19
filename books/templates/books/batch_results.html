@@ -1,14 +1,12 @@
-{% extends "books/base.html" %}
+{% extends "books/layout-staff.html" %}
 
-{% block title %}Batch Upload Results{% endblock %}
+{% block staff_title %}Batch Upload Results{% endblock %}
 
-{% block content %}
+{% block staff_content %}
 <div class="results-container">
-    <a href="{% url 'books:book-list' %}" class="site-header results-header">
-        <div class="results-header-row">
-            <div class="site-title">Batch Upload Results</div>
-        </div>
-    </a>
+    <div class="page-header">
+        <h1 class="page-title">Batch Upload Results</h1>
+    </div>
 
     <div class="summary-card card">
         <div class="summary-item">
@@ -95,4 +93,4 @@
         >
     </div>
 </div>
-{% endblock content %}
+{% endblock staff_content %}

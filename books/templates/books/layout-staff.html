@@ -1,0 +1,55 @@
+{% extends "books/base.html" %}
+
+{% block title %}{% block staff_title %}{% endblock %} - Staff{% endblock %}
+
+{% block content %}
+    <div class="staff-layout">
+        <aside class="staff-sidebar">
+            <div class="staff-sidebar-header">
+                <a href="{% url 'books:book-list' %}" class="staff-brand">Theo's Bookshop</a>
+                <span class="staff-badge">Staff</span>
+            </div>
+
+            <nav class="staff-menu">
+                <div class="staff-menu-section">
+                    <span class="staff-menu-label">Books</span>
+                    <a href="{% url 'books:book-create' %}" class="staff-menu-item{% if request.resolver_match.url_name == 'book-create' %} active{% endif %}">
+                        <span class="staff-menu-icon">+</span>
+                        Add Book
+                    </a>
+                    <a href="{% url 'books:batch-upload' %}" class="staff-menu-item{% if request.resolver_match.url_name == 'batch-upload' %} active{% endif %}">
+                        <span class="staff-menu-icon">📚</span>
+                        Batch Upload
+                    </a>
+                </div>
+
+                <div class="staff-menu-section">
+                    <span class="staff-menu-label">System</span>
+                    <a href="/admin/" class="staff-menu-item">
+                        <span class="staff-menu-icon">⚙️</span>
+                        Django Admin
+                    </a>
+                    <a href="{% url 'books:book-list' %}" class="staff-menu-item">
+                        <span class="staff-menu-icon">→</span>
+                        Public Site
+                    </a>
+                </div>
+            </nav>
+
+            {% if user.is_authenticated %}
+            <div class="staff-user">
+                <span class="staff-user-name">{{ user.get_username }}</span>
+                <form method="post" action="{% url 'admin:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="staff-logout">Logout</button>
+                </form>
+            </div>
+            {% endif %}
+        </aside>
+
+        <main class="staff-main">
+            {% block staff_content %}
+            {% endblock staff_content %}
+        </main>
+    </div>
+{% endblock content %}

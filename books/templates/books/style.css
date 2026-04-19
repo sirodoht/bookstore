@@ -1349,6 +1349,168 @@ ul {
   line-height: 1.6;
 }
 
+/* Staff Layout */
+.staff-layout {
+    display: flex;
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .staff-layout {
+        flex-direction: column;
+        gap: 24px;
+    }
+}
+
+.staff-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+@media (max-width: 768px) {
+    .staff-sidebar {
+        width: 100%;
+    }
+}
+
+.staff-sidebar-header {
+    padding: 20px;
+    background: var(--card-bg);
+    border: 3px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+}
+
+.staff-brand {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    border-bottom: none;
+}
+
+.staff-brand:hover {
+    background: transparent;
+    color: var(--accent-green);
+}
+
+.staff-badge {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    background: var(--accent-orange);
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.staff-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.staff-menu-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.staff-menu-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    padding: 0 12px;
+    margin-bottom: 4px;
+}
+
+.staff-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+
+.staff-menu-item:hover {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.staff-menu-item.active {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    box-shadow: 3px 3px 0 var(--border-color);
+    font-weight: 600;
+}
+
+.staff-menu-icon {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.staff-user {
+    margin-top: auto;
+    padding: 16px;
+    background: var(--card-bg-alt);
+    border: 3px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.staff-user-name {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.staff-logout {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    background: transparent;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.staff-logout:hover {
+    background: var(--accent-orange);
+}
+
+.staff-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.staff-main .page-header {
+    margin-bottom: 24px;
+}
+
+.staff-main .page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+}
+
 /* Book Detail Page */
 .book-detail-container {
     margin-top: 20px;
