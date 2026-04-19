@@ -7,9 +7,7 @@
 
 {% if user.is_authenticated and user.is_staff %}
 <div class="staff-bar">
-    <a href="{% url 'books:book-list' %}">← Back to list</a>
-    <a href="{% url 'books:book-update' book.pk %}">Edit book</a>
-    <a href="/admin/books/book/{{ book.pk }}/change/">Admin</a>
+    <a href="/admin/books/book/{{ book.pk }}/change/">Edit book</a>
 </div>
 {% endif %}
 

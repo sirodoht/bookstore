@@ -104,18 +104,6 @@ body {
     margin: 0;
 }
 
-/* Card Component */
-.card {
-    border: 1px solid var(--border-color);
-    padding: 24px;
-}
-
-@media (max-width: 600px) {
-    .card {
-        padding: 16px;
-    }
-}
-
 /* Typography */
 h1 {
     font-size: 1.75rem;

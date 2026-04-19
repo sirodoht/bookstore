@@ -33,6 +33,8 @@ class Book(models.Model):
         null=True,
         help_text="Book cover image (will be cropped to 13:18 ratio)",
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["title"]

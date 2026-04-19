@@ -33,6 +33,7 @@ def logout_view(request):
     logout(request)
     return redirect("books:book-list")
 
+
 logger = logging.getLogger(__name__)
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
