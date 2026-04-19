@@ -32,6 +32,85 @@ body {
     margin: 0 auto;
 }
 
+/* Announcement Banner - Scrolling book titles */
+.announcement-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: #1a1a2e;
+    overflow: hidden;
+    height: 44px;
+}
+
+.banner-track {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    white-space: nowrap;
+    animation: scroll-banner 8s linear infinite;
+}
+
+.announcement-banner:hover .banner-track {
+    animation-play-state: paused;
+}
+
+.banner-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #fef9e7;
+    text-decoration: none;
+    border-bottom: none;
+    transition: color 0.15s ease;
+    flex-shrink: 0;
+}
+
+.banner-item:hover {
+    background: transparent;
+    color: var(--accent-orange);
+}
+
+.banner-separator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 16px;
+    color: #f4a261;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+}
+
+@keyframes scroll-banner {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-33.333%);
+    }
+}
+
+/* Adjust body padding for fixed banner */
+body {
+    padding-top: 68px;
+}
+
+@media (max-width: 600px) {
+    .announcement-banner {
+        height: 40px;
+    }
+
+    .banner-item {
+        font-size: 0.9rem;
+    }
+
+    body {
+        padding-top: 56px;
+    }
+}
+
 /* Header Styles - Traditional decorative frame */
 a.site-header {
     display: block;
