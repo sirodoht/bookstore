@@ -6,6 +6,7 @@ app_name = "books"
 
 urlpatterns = [
     path("", views.BookListView.as_view(), name="book-list"),
+    path("logout/", views.logout_view, name="logout"),
     path("book/<int:pk>/edit/", views.BookUpdateView.as_view(), name="book-update"),
     path("staff/add-one-book/", views.BookCreateView.as_view(), name="book-create"),
     path(

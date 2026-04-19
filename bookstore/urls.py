@@ -20,7 +20,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from books import views
+
 urlpatterns = [
+    path("admin/logout/", views.logout_view, name="admin-logout"),
     path("admin/", admin.site.urls),
     path("", include("books.urls")),
 ]

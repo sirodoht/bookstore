@@ -8,6 +8,7 @@ from decimal import Decimal
 import stripe
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.files.base import ContentFile
@@ -25,6 +26,12 @@ from django.views.generic import (
 
 from . import adj
 from .models import Book
+
+
+def logout_view(request):
+    """Log out user and redirect to book list."""
+    logout(request)
+    return redirect("books:book-list")
 
 logger = logging.getLogger(__name__)
 
