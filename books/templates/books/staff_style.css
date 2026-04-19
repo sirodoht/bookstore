@@ -232,6 +232,7 @@ h2 {
     transition: transform 0.1s ease, box-shadow 0.1s ease;
     box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
     text-decoration: none;
+    box-sizing: border-box;
 }
 
 .btn:active {
@@ -395,6 +396,7 @@ a {
     transition: transform 0.1s ease;
     text-decoration: none;
     color: var(--text-dark);
+    box-sizing: border-box;
 }
 
 .back-link:hover {
