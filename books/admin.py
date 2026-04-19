@@ -20,12 +20,15 @@ class BookAdmin(admin.ModelAdmin):
         "isbn",
         "price",
         "is_available",
+        "created_at",
+        "updated_at",
     ]
     search_fields = ["title", "author", "isbn"]
     list_filter = ["published_year", "author", "is_available", "tags"]
     list_editable = ["is_available"]
     filter_horizontal = ["tags"]
     actions = ["make_available", "make_unavailable"]
+    readonly_fields = ["created_at", "updated_at"]
 
     @admin.action(description="Mark selected books as available")
     def make_available(self, request, queryset):
