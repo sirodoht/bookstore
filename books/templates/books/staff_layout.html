@@ -22,7 +22,8 @@
                 <a href="{% url 'books:book-create' %}" class="staff-nav-link{% if request.resolver_match.url_name == 'book-create' %} active{% endif %}">Add one book</a>
                 <a href="{% url 'books:batch-upload' %}" class="staff-nav-link{% if request.resolver_match.url_name == 'batch-upload' %} active{% endif %}">Add many books</a>
                 <a href="{% url 'books:add-from-amazon' %}" class="staff-nav-link{% if request.resolver_match.url_name == 'add-from-amazon' %} active{% endif %}">Add from Amazon</a>
-                <a href="/admin/" class="staff-nav-link">Django Admin</a>
+                <a href="/admin/books/book/" class="staff-nav-link">List Books</a>
+                <a href="/admin/books/order/" class="staff-nav-link">List Orders</a>
                 <a href="{% url 'books:book-list' %}" class="staff-nav-link">Public Site</a>
             </nav>
 

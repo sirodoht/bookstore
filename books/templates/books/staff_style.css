@@ -179,7 +179,6 @@ a {
     padding: 12px 16px;
     font-family: inherit;
     font-size: 1rem;
-    background: var(--card-bg-alt);
     border: 1px solid var(--border-color);
     outline: none;
     box-sizing: border-box;
@@ -468,7 +467,6 @@ a {
 .upload-area {
     border: 1px dashed var(--border-color);
     padding: 40px 24px;
-    background: var(--card-bg-alt);
     text-align: center;
     margin-bottom: 20px;
 }
@@ -919,7 +917,6 @@ a {
     padding: 12px 16px;
     font-family: inherit;
     font-size: 1rem;
-    background: var(--card-bg-alt);
     border: 1px solid var(--border-color);
     outline: none;
     box-sizing: border-box;
