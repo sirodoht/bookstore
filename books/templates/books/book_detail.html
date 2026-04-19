@@ -1,15 +1,14 @@
 {% extends "books/base.html" %}
 
-{% block title %}Theo's Bookshop{% endblock %}
+{% block title %}{{ book.title }} | Theo's Bookshop{% endblock %}
 
 {% block content %}
 
 {% if user.is_authenticated and user.is_staff %}
 <div class="admin-bar">
-    <a href="{% url 'books:book-create' %}">+ Add new book</a>
-    <a href="{% url 'books:batch-upload' %}">Batch upload</a>
-    <a href="/admin/books/book/">Books</a>
-    <a href="/admin/books/order/">Orders</a>
+    <a href="{% url 'books:book-list' %}">← Back to list</a>
+    <a href="{% url 'books:book-update' book.pk %}">Edit book</a>
+    <a href="/admin/books/book/{{ book.pk }}/change/">Admin</a>
 </div>
 {% endif %}
 
@@ -20,74 +19,52 @@
 </header>
 
 <div class="header-meta-box">
-    second hand books / free shipping to the UK /
-    <a href="{% url 'books:about' %}">about the bookshop</a>
+    <a href="{% url 'books:book-list' %}">Home</a>
+    /
+    {{ book.title }}
 </div>
 
-<div class="filter-bar card card-alt">
-    <div class="filter-group">
-        <span class="filter-label">Title:</span>
-        <a href="?sort=title_asc" class="filter-toggle{% if sort == 'title_asc' %} active{% endif %}">A-Z</a>
-        <a href="?sort=title_desc" class="filter-toggle{% if sort == 'title_desc' %} active{% endif %}">Z-A</a>
-    </div>
-    <div class="filter-group">
-        <span class="filter-label">Author:</span>
-        <a href="?sort=author_asc" class="filter-toggle{% if sort == 'author_asc' %} active{% endif %}">A-Z</a>
-        <a href="?sort=author_desc" class="filter-toggle{% if sort == 'author_desc' %} active{% endif %}">Z-A</a>
-    </div>
-    <div class="filter-group">
-        <a href="{% url 'books:book-list' %}" class="filter-clear{% if not sort %} active{% endif %}">Random</a>
-    </div>
-</div>
-
-{% if books %}
-<div class="book-list">
-    {% for book in books %}
-    <div class="book-item">
+<div class="book-detail-container">
+    <div class="book-detail-card card card-alt">
         {% if book.cover_image %}
-        <div class="book-cover">
+        <div class="book-detail-cover">
             <img
                 src="{{ book.cover_image.url }}"
                 alt="{{ book.title }} cover"
             />
         </div>
         {% else %}
-        <div class="book-cover book-cover-placeholder"></div>
+        <div class="book-detail-cover book-cover-placeholder"></div>
         {% endif %}
-        <div class="book-details">
-            <div class="book-title">
-                <a href="{% url 'books:book-detail' book.pk %}">{{ book.title }}</a>
-                {% if user.is_authenticated and user.is_staff %}
-                <a
-                    href="/admin/books/book/{{ book.pk }}/change/"
-                    style="
-                        font-size: 0.7rem;
-                        font-weight: normal;
-                        color: var(--text-muted);
-                        margin-left: 8px;
-                    "
-                    >(edit)</a
-                >
-                {% endif %}
-            </div>
+
+        <div class="book-detail-info">
+            <h1 class="book-detail-title">{{ book.title }}</h1>
+
             <div class="book-meta">
                 <span>by {{ book.author }}</span>
                 {% if book.published_year %}
                 <span class="separator">•</span>
                 <span>{{ book.published_year }}</span>
-                {% endif %} {% if book.isbn %}
+                {% endif %}
+                {% if book.isbn %}
                 <span class="separator">•</span>
                 <span>ISBN: {{ book.isbn }}</span>
                 {% endif %}
             </div>
+
             {% if book.description %}
-            <div class="book-description">{{ book.description }}</div>
-            {% endif %} {% if book.review %}
+            <div class="book-description">
+                {{ book.description }}
+            </div>
+            {% endif %}
+
+            {% if book.review %}
             <div class="book-review">
                 <div class="book-review-label">why buy?</div>
                 {{ book.review }}
             </div>
             {% endif %}
+
             <div class="book-footer">
                 <div class="purchase-unit">
                     <div class="book-price">£{{ book.price }}</div>
@@ -101,13 +78,7 @@
             </div>
         </div>
     </div>
-    {% endfor %}
 </div>
-{% else %}
-<div class="card">
-    <p class="empty-message">No books available.</p>
-</div>
-{% endif %}
 
 <!-- Lightbox overlay -->
 <div class="lightbox" id="lightbox">
@@ -121,15 +92,15 @@
     document.addEventListener("DOMContentLoaded", function () {
         const lightbox = document.getElementById("lightbox");
         const lightboxImg = lightbox.querySelector("img");
-        const covers = document.querySelectorAll(".book-cover img");
+        const cover = document.querySelector(".book-detail-cover img");
 
-        covers.forEach(function (img) {
-            img.addEventListener("click", function (e) {
+        if (cover) {
+            cover.addEventListener("click", function (e) {
                 e.preventDefault();
                 lightboxImg.src = this.src;
                 lightbox.classList.add("active");
             });
-        });
+        }
 
         lightbox.addEventListener("click", function (e) {
             if (e.target === lightbox) {

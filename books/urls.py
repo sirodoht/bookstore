@@ -15,6 +15,7 @@ urlpatterns = [
         name="batch-upload-stream",
     ),
     path("batch-results/", views.batch_results, name="batch-results"),
+    path("book/<int:pk>/", views.BookDetailView.as_view(), name="book-detail"),
     path("book/<int:pk>/buy/", views.BookPurchaseView.as_view(), name="book-buy"),
     path(
         "checkout/success/",

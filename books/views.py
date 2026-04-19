@@ -15,7 +15,13 @@ from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, ListView, TemplateView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    TemplateView,
+    UpdateView,
+)
 
 from . import adj
 from .models import Book
@@ -52,6 +58,22 @@ class BookListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["sort"] = self.request.GET.get("sort")
+        context["adjective"] = random.choice(adj.ADJECTIVE_LIST)
+        return context
+
+
+class BookDetailView(DetailView):
+    """Display details of a single book."""
+
+    model = Book
+    template_name = "books/book_detail.html"
+    context_object_name = "book"
+
+    def get_queryset(self):
+        return Book.objects.filter(is_available=True)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context["adjective"] = random.choice(adj.ADJECTIVE_LIST)
         return context
 

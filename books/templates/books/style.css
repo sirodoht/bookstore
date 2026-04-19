@@ -45,7 +45,6 @@ body {
         6px 6px 0 var(--border-color),
         8px 8px 0 rgba(0, 0, 0, 0.08);
 }
-
 @media (max-width: 600px) {
     .site-header {
         padding: 32px;
@@ -109,7 +108,6 @@ body {
     margin: 0;
     letter-spacing: -0.02em;
 }
-
 @media (max-width: 600px) {
     .site-title {
         font-size: 1.5rem;
@@ -124,7 +122,6 @@ body {
     padding: 24px;
     box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
 }
-
 @media (max-width: 600px) {
     .card {
         padding: 20px 16px;
@@ -170,15 +167,6 @@ h2 {
     box-shadow: 2px 2px 0 var(--border-color);
 }
 
-.btn-primary {
-    background: var(--accent-orange);
-    color: var(--text-dark);
-}
-
-.btn-primary:hover {
-    background: #e69350;
-}
-
 .btn-secondary {
     background: var(--card-bg-alt);
     color: var(--text-dark);
@@ -207,19 +195,6 @@ a {
 
 a:hover {
     background: var(--accent-orange);
-}
-
-/* Form Elements */
-input[type="text"],
-select {
-    padding: 12px 16px;
-    font-family: "Space Grotesk", sans-serif;
-    font-size: 1rem;
-    background: var(--card-bg-alt);
-    border: 3px solid var(--border-color);
-    border-radius: 8px;
-    box-shadow: 3px 3px 0 var(--border-color);
-    outline: none;
 }
 
 ul {
@@ -281,24 +256,6 @@ ul {
     text-align: center;
 }
 
-.header-link {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 12px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    color: var(--text-muted);
-    border-bottom: none;
-    text-decoration: none;
-    transition: color 0.15s ease;
-}
-
-.header-link:hover {
-    background: transparent;
-    color: var(--accent-green);
-}
-
 .header-meta-box {
     margin-bottom: 20px;
     padding: 12px 20px;
@@ -319,7 +276,6 @@ ul {
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
-
 @media (max-width: 600px) {
     .filter-bar {
         gap: 16px;
@@ -390,6 +346,14 @@ ul {
     gap: 16px;
     align-items: flex-start;
 }
+@media (max-width: 600px) {
+    .book-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 16px;
+    }
+}
 
 .book-cover {
     width: 130px;
@@ -404,6 +368,12 @@ ul {
     color: #adb5bd;
     overflow: hidden;
     cursor: zoom-in;
+}
+@media (max-width: 600px) {
+    .book-cover {
+        width: 160px;
+        height: 220px;
+    }
 }
 
 .book-cover img {
@@ -420,6 +390,11 @@ ul {
     flex: 1;
     min-width: 0;
 }
+@media (max-width: 600px) {
+    .book-details {
+        width: 100%;
+    }
+}
 
 .book-title {
     font-size: 1.15rem;
@@ -428,11 +403,21 @@ ul {
     line-height: 1.3;
 }
 
+.book-title a {
+    color: var(--text-dark);
+    text-decoration: none;
+}
+
 .book-meta {
     font-family: "JetBrains Mono", monospace;
     font-size: 0.8rem;
     color: var(--text-muted);
     margin-bottom: 12px;
+}
+@media (max-width: 600px) {
+    .book-meta {
+        font-size: 0.75rem;
+    }
 }
 
 .book-meta span {
@@ -442,6 +427,11 @@ ul {
 .book-meta .separator {
     margin: 0 8px;
     color: #999;
+}
+@media (max-width: 600px) {
+    .book-meta .separator {
+        margin: 0 4px;
+    }
 }
 
 .book-description {
@@ -475,6 +465,11 @@ ul {
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+    .book-footer {
+        justify-content: center;
+    }
 }
 
 /* Purchase Unit */
@@ -525,9 +520,13 @@ ul {
         background 0.15s ease,
         transform 0.1s ease;
 }
-
 .buy-button:hover {
     background: #e69350;
+}
+@media (max-width: 600px) {
+    .buy-button {
+        min-width: 100px;
+    }
 }
 
 .buy-button::before {
@@ -552,41 +551,6 @@ ul {
     font-size: 2rem;
     margin-bottom: 16px;
     color: var(--text-muted);
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-    .book-item {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 16px;
-    }
-
-    .book-cover {
-        width: 160px;
-        height: 220px;
-    }
-
-    .book-details {
-        width: 100%;
-    }
-
-    .book-meta {
-        font-size: 0.75rem;
-    }
-
-    .book-meta .separator {
-        margin: 0 4px;
-    }
-
-    .book-footer {
-        justify-content: center;
-    }
-
-    .buy-button {
-        min-width: 100px;
-    }
 }
 
 /* Lightbox */
@@ -865,12 +829,13 @@ ul {
     padding-top: 24px;
     border-top: 2px solid var(--border-color);
 }
-
 @media (max-width: 600px) {
     .actions-bar {
         flex-direction: column;
     }
+}
 
+@media (max-width: 600px) {
     .actions-bar .btn,
     .actions-bar .back-link {
         width: 100%;
@@ -1218,7 +1183,9 @@ ul {
     .form-actions {
         flex-direction: column;
     }
+}
 
+@media (max-width: 600px) {
     .form-actions .btn,
     .form-actions .back-link {
         width: 100%;
@@ -1372,4 +1339,75 @@ ul {
   color: var(--text-muted);
   margin-bottom: 32px;
   line-height: 1.6;
+}
+
+/* Book Detail Page */
+.book-detail-container {
+    margin-top: 20px;
+}
+
+.book-detail-card {
+    display: flex;
+    gap: 24px;
+    padding: 28px;
+}
+@media (max-width: 600px) {
+    .book-detail-card {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+}
+
+.book-detail-cover {
+    width: 260px;
+    height: 360px;
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-radius: 3px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #adb5bd;
+    overflow: hidden;
+    cursor: zoom-in;
+    border: 3px solid var(--border-color);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--border-color);
+}
+@media (max-width: 600px) {
+    .book-detail-cover {
+        width: 200px;
+        height: 280px;
+    }
+}
+
+.book-detail-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.book-detail-info {
+    flex: 1;
+    min-width: 0;
+}
+@media (max-width: 600px) {
+    .book-detail-info {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.book-detail-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+}
+@media (max-width: 600px) {
+    .book-detail-title {
+        font-size: 1.4rem;
+    }
 }
