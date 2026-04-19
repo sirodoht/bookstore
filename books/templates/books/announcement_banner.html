@@ -2,12 +2,14 @@
     <div class="announcement-banner">
         <div class="banner-track">
             {% for _ in "12" %}
+                <div class="banner-group">
                 {% for book in banner_books %}
                     <a href="{% url 'books:book-detail' book.pk %}" class="banner-item">
                         {{ book.title }} — £{{ book.price }}
                     </a>
                     <span class="banner-separator">•</span>
                 {% endfor %}
+                </div>
             {% endfor %}
         </div>
     </div>

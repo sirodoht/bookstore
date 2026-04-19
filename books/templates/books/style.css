@@ -54,11 +54,18 @@ body {
 }
 
 .banner-track {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     height: 100%;
     white-space: nowrap;
+    width: max-content;
     animation: scroll-banner 8s linear infinite;
+}
+
+.banner-group {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 .announcement-banner:hover .banner-track {
@@ -332,13 +339,9 @@ ul {
     font-size: 0.75rem;
     color: var(--text-muted);
     border: none;
-    text-decoration: underline;
     text-align: center;
-}
-
-.staff-bar a:hover {
-    background: transparent;
-    color: var(--accent-green);
+    border: 1px solid var(--accent-orange);
+    padding: 5px;
 }
 
 /* Header Components */
