@@ -20,6 +20,17 @@ urlpatterns = [
         name="batch-upload-stream",
     ),
     path("batch-results/", views.batch_results, name="batch-results"),
+    path(
+        "staff/add-from-amazon/",
+        views.AmazonAddView.as_view(),
+        name="add-from-amazon",
+    ),
+    path(
+        "staff/add-from-amazon/stream/",
+        views.amazon_add_stream,
+        name="amazon-add-stream",
+    ),
+    path("amazon-results/", views.amazon_results, name="amazon-results"),
     path("book/<int:pk>/", views.BookDetailView.as_view(), name="book-detail"),
     path("book/<int:pk>/buy/", views.BookPurchaseView.as_view(), name="book-buy"),
     path(

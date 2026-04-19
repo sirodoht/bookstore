@@ -1,0 +1,129 @@
+{% extends "books/staff_layout.html" %}
+
+{% block staff_title %}Amazon Import Results{% endblock %}
+
+{% block staff_content %}
+<div class="amazon-results-container">
+    <div class="page-header">
+        <h1 class="page-title">Amazon Import Results</h1>
+    </div>
+
+    <div class="results-summary card">
+        <div class="summary-stats">
+            <div class="stat-item">
+                <span class="stat-value">{{ total }}</span>
+                <span class="stat-label">Total links</span>
+            </div>
+            <div class="stat-item stat-success">
+                <span class="stat-value">{{ completed_count }}</span>
+                <span class="stat-label">Imported</span>
+            </div>
+            <div class="stat-item stat-error">
+                <span class="stat-value">{{ failed_count }}</span>
+                <span class="stat-label">Failed</span>
+            </div>
+        </div>
+    </div>
+
+    {% if completed_books %}
+    <div class="results-section">
+        <h2 class="section-title">
+            Successfully Imported
+            <span class="badge badge-success">{{ completed_count }}</span>
+        </h2>
+        <div class="books-list">
+            {% for item in completed_books %}
+            <div class="book-result-item card">
+                {% if item.book.cover_image %}
+                <div class="book-cover">
+                    <img
+                        src="{{ item.book.cover_image.url }}"
+                        alt="{{ item.book.title }}"
+                    />
+                </div>
+                {% else %}
+                <div class="book-cover book-cover-placeholder">
+                    <span>No cover</span>
+                </div>
+                {% endif %}
+                <div class="book-info">
+                    <h3 class="book-title">{{ item.book.title }}</h3>
+                    <p class="book-author">by {{ item.book.author }}</p>
+                    {% if item.book.isbn %}
+                    <p class="book-isbn">ISBN: {{ item.book.isbn }}</p>
+                    {% endif %}
+                    {% if item.book.published_year %}
+                    <p class="book-year">{{ item.book.published_year }}</p>
+                    {% endif %}
+                    <p class="book-source">
+                        <a
+                            href="{{ item.url }}"
+                            target="_blank"
+                            class="link-amazon"
+                        >
+                            View on Amazon
+                        </a>
+                    </p>
+                </div>
+                <div class="book-actions">
+                    <a
+                        href="/admin/books/book/{{ item.book.pk }}/change/"
+                        class="btn btn-primary"
+                    >
+                        Edit Book
+                    </a>
+                    <a
+                        href="{% url 'books:book-detail' item.book.pk %}"
+                        class="btn btn-secondary"
+                    >
+                        View
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if failed_imports %}
+    <div class="results-section">
+        <h2 class="section-title">
+            Failed Imports
+            <span class="badge badge-error">{{ failed_count }}</span>
+        </h2>
+        <div class="failed-list">
+            {% for item in failed_imports %}
+            <div class="failed-item card">
+                <div class="failed-url">
+                    <span class="label">URL:</span>
+                    <a
+                        href="{{ item.url }}"
+                        target="_blank"
+                        class="url-link"
+                    >
+                        {{ item.url }}
+                    </a>
+                </div>
+                <div class="failed-error">
+                    <span class="label">Error:</span>
+                    <span class="error-message">{{ item.error }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-actions results-actions">
+        <a
+            href="{% url 'books:add-from-amazon' %}"
+            class="btn btn-success"
+        >
+            Import More Books
+        </a>
+        <a href="{% url 'books:book-list' %}" class="btn btn-secondary">
+            View Public Site
+        </a>
+    </div>
+</div>
+{% endblock staff_content %}

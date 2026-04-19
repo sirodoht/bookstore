@@ -9,6 +9,7 @@
 <div class="staff-bar">
     <a href="{% url 'books:book-create' %}">Add one book</a>
     <a href="{% url 'books:batch-upload' %}">Add many books</a>
+    <a href="{% url 'books:add-from-amazon' %}">Add from Amazon</a>
     <a href="/admin/books/book/">List Books</a>
     <a href="/admin/books/order/">List Orders</a>
 </div>
@@ -110,9 +111,6 @@
                 {% if book.published_year %}
                 <span class="separator">•</span>
                 <span>{{ book.published_year }}</span>
-                {% endif %} {% if book.isbn %}
-                <span class="separator">•</span>
-                <span>ISBN: {{ book.isbn }}</span>
                 {% endif %}
             </div>
             {% if book.description %}
@@ -124,6 +122,38 @@
             </div>
             {% endif %}
             <div class="book-footer">
+                {% if book.amazon_link or book.worldofbooks_link %}
+                <div class="external-links">
+                    {% if book.worldofbooks_link %}
+                    <div class="purchase-unit">
+                        <a
+                            href="{{ book.worldofbooks_link }}"
+                            target="_blank"
+                            class="buy-button buy-worldofbooks"
+                        >
+                            Buy on World of Books
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if book.amazon_link %}
+                    <div class="purchase-unit">
+                        <a
+                            href="{{ book.amazon_link }}"
+                            target="_blank"
+                            class="buy-button buy-amazon"
+                        >
+                            Buy on Amazon
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if book.amazon_link or book.worldofbooks_link %}
+                <div class="affiliate-disclosure">
+                    As an Amazon Associate and World of Books affiliate,
+                    I earn from qualifying purchases.
+                </div>
+                {% endif %}
+                {% else %}
                 <div class="purchase-unit">
                     <div class="book-price">£{{ book.price }}</div>
                     <form method="post" action="{% url 'books:book-buy' book.pk %}">
@@ -133,6 +163,7 @@
                         </button>
                     </form>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

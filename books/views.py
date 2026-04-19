@@ -3,6 +3,7 @@
 import json
 import logging
 import random
+import time
 from decimal import Decimal
 
 import stripe
@@ -21,10 +22,9 @@ from django.views.generic import (
     DetailView,
     ListView,
     TemplateView,
-    UpdateView,
 )
 
-from . import adj
+from . import adj, amazon_scraper
 from .models import Book, Tag
 
 
@@ -121,29 +121,18 @@ class BookCreateView(UserPassesTestMixin, CreateView):
         return self.request.user.is_staff
 
 
-class BookUpdateView(UserPassesTestMixin, UpdateView):
-    """Update an existing book (admin only)."""
+class BookUpdateView(UserPassesTestMixin, View):
+    """Redirect to Django admin edit page (admin only)."""
 
-    model = Book
-    template_name = "books/staff_book_form.html"
-    fields = [
-        "title",
-        "author",
-        "isbn",
-        "description",
-        "review",
-        "published_year",
-        "price",
-        "is_available",
-        "cover_image",
-        "tags",
-    ]
-    success_url = reverse_lazy("books:book-list")
     login_url = "/admin/login/"
 
     def test_func(self):
         """Only allow admin users."""
         return self.request.user.is_staff
+
+    def get(self, request, pk):
+        """Redirect to Django admin change page."""
+        return redirect(f"/admin/books/book/{pk}/change/")
 
 
 class BookPurchaseView(View):
@@ -389,3 +378,192 @@ def batch_results(request):
     }
 
     return render(request, "books/staff_batch_results.html", context)
+
+
+class AmazonAddView(UserPassesTestMixin, TemplateView):
+    """Display form for adding books from Amazon links (admin only)."""
+
+    template_name = "books/staff_amazon_add.html"
+    login_url = "/admin/login/"
+
+    def test_func(self):
+        """Only allow admin users."""
+        return self.request.user.is_staff
+
+    def get_context_data(self, **kwargs):
+        """Add max links limit to context."""
+        context = super().get_context_data(**kwargs)
+        context["max_links"] = 10
+        return context
+
+
+@user_passes_test(lambda u: u.is_staff)
+def amazon_add_stream(request):
+    """Stream Amazon book import progress via Server-Sent Events."""
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST requests allowed"}, status=405)
+
+    links_text = request.POST.get("amazon_links", "").strip()
+
+    if not links_text:
+        return JsonResponse({"error": "No links provided"}, status=400)
+
+    # Parse links (one per line)
+    links = [link.strip() for link in links_text.split("\n") if link.strip()]
+
+    if not links:
+        return JsonResponse({"error": "No valid links provided"}, status=400)
+
+    if len(links) > 10:
+        return JsonResponse({"error": "Maximum 10 links allowed"}, status=400)
+
+    def event_stream():
+        """Generate SSE events for each link processed."""
+        results = []
+        total = len(links)
+
+        for idx, url in enumerate(links, 1):
+            result = {
+                "index": idx,
+                "total": total,
+                "url": url,
+                "status": "processing",
+                "book_id": None,
+                "book_title": None,
+                "error": None,
+            }
+
+            # Send processing start event
+            yield f"data: {json.dumps(result)}\n\n"
+
+            try:
+                # Follow redirect for amzn.to links
+                real_url = amazon_scraper.follow_redirect(url)
+
+                if isinstance(real_url, dict) and "error" in real_url:
+                    raise Exception(real_url["error"])
+
+                # Add 1-second delay before scraping
+                time.sleep(1)
+
+                # Scrape book data
+                data = amazon_scraper.scrape_book_data(real_url)
+
+                if "error" in data:
+                    raise Exception(data["error"])
+
+                # Download cover image
+                image_data = None
+                if data.get("cover_url"):
+                    image_data = amazon_scraper.download_image(data["cover_url"])
+
+                # Convert ISBN-10 to ISBN-13
+                isbn13 = None
+                if data.get("isbn"):
+                    isbn13 = amazon_scraper.isbn10_to_isbn13(data["isbn"])
+
+                # Create the book
+                book = Book(
+                    title=data.get("title", "Untitled"),
+                    author=data.get("author", "Unknown Author"),
+                    isbn=isbn13,
+                    published_year=data.get("year"),
+                    price=Decimal("4.00"),
+                    is_available=True,
+                    amazon_link=url,
+                )
+
+                if image_data:
+                    book.cover_image = ContentFile(image_data, name="cover.jpg")
+
+                book.save()
+
+                result["status"] = "completed"
+                result["book_id"] = book.id
+                result["book_title"] = book.title
+
+                logger.info(
+                    "amazon_add: Created book %s from %s",
+                    book.id,
+                    url,
+                )
+
+            except Exception as e:
+                logger.exception("amazon_add: Failed to process %s: %s", url, e)
+                result["status"] = "failed"
+                result["error"] = str(e)
+
+            results.append(result)
+            yield f"data: {json.dumps(result)}\n\n"
+
+        # Send completion event with all results
+        completion = {
+            "status": "complete",
+            "total": total,
+            "completed": sum(1 for r in results if r["status"] == "completed"),
+            "failed": sum(1 for r in results if r["status"] == "failed"),
+            "results": results,
+        }
+        yield f"data: {json.dumps(completion)}\n\n"
+
+    response = StreamingHttpResponse(
+        event_stream(),
+        content_type="text/event-stream",
+    )
+    response["Cache-Control"] = "no-cache"
+    response["X-Accel-Buffering"] = "no"
+    return response
+
+
+@user_passes_test(lambda u: u.is_staff)
+def amazon_results(request):
+    """Display results of Amazon book import."""
+    results_json = request.GET.get("results")
+
+    if not results_json:
+        messages.warning(request, "No Amazon import results to display.")
+        return redirect("books:book-list")
+
+    try:
+        results = json.loads(results_json)
+    except json.JSONDecodeError:
+        messages.error(request, "Invalid Amazon import results data.")
+        return redirect("books:book-list")
+
+    completed_books = []
+    failed_imports = []
+
+    for result in results:
+        if result["status"] == "completed" and result.get("book_id"):
+            try:
+                book = Book.objects.get(id=result["book_id"])
+                completed_books.append(
+                    {
+                        "book": book,
+                        "url": result["url"],
+                    }
+                )
+            except Book.DoesNotExist:
+                failed_imports.append(
+                    {
+                        "url": result["url"],
+                        "error": "Book was deleted",
+                    }
+                )
+        elif result["status"] == "failed":
+            failed_imports.append(
+                {
+                    "url": result["url"],
+                    "error": result.get("error", "Unknown error"),
+                }
+            )
+
+    context = {
+        "completed_books": completed_books,
+        "failed_imports": failed_imports,
+        "total": len(results),
+        "completed_count": len(completed_books),
+        "failed_count": len(failed_imports),
+    }
+
+    return render(request, "books/staff_amazon_results.html", context)

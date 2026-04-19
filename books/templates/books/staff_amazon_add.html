@@ -1,0 +1,206 @@
+{% extends "books/staff_layout.html" %}
+
+{% block staff_title %}Add from Amazon{% endblock %}
+
+{% block staff_content %}
+<div class="amazon-add-container">
+    <div class="page-header">
+        <h1 class="page-title">Add books from Amazon</h1>
+    </div>
+
+    <div class="card">
+        <form
+            method="post"
+            id="amazon-form"
+            action="{% url 'books:amazon-add-stream' %}"
+        >
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="amazon-links" class="form-label">
+                    Amazon Affiliate Links
+                </label>
+                <textarea
+                    id="amazon-links"
+                    name="amazon_links"
+                    class="form-textarea"
+                    rows="10"
+                    placeholder="https://amzn.to/4u0Uzm0&#10;https://amzn.to/98sP7df&#10;..."
+                ></textarea>
+                <div class="form-hint">
+                    Up to {{ max_links }} links (one per line). Books will be created as drafts (not available for sale).
+                </div>
+            </div>
+
+            <div class="error-message" id="error-message"></div>
+
+            <div class="progress-section" id="progress-section">
+                <div class="progress-header">
+                    <span class="progress-title">Importing books...</span>
+                    <span class="progress-count" id="progress-count"
+                        >0 / 0</span
+                    >
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progress-bar">0%</div>
+                </div>
+                <div class="current-link" id="current-link"></div>
+                <div class="status-messages" id="status-messages"></div>
+            </div>
+
+            <div class="form-actions">
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                    id="import-btn"
+                >
+                    Start Import
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock staff_content %}
+
+{% block scripts %}
+<script>
+    (function() {
+      const amazonForm = document.getElementById('amazon-form');
+      const importBtn = document.getElementById('import-btn');
+      const progressSection = document.getElementById('progress-section');
+      const progressBar = document.getElementById('progress-bar');
+      const progressCount = document.getElementById('progress-count');
+      const currentLinkEl = document.getElementById('current-link');
+      const statusMessages = document.getElementById('status-messages');
+      const errorMessage = document.getElementById('error-message');
+
+      function showError(msg) {
+        errorMessage.textContent = msg;
+        errorMessage.classList.add('visible');
+        setTimeout(() => {
+          errorMessage.classList.remove('visible');
+        }, 5000);
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function addStatusMessage(message, type) {
+        const msg = document.createElement('div');
+        msg.className = `status-message ${type}`;
+        const icon = type === 'success' ? '✓' : type === 'error' ? '✗' : '⟳';
+        msg.innerHTML = `<span class="status-icon">${icon}</span> ${escapeHtml(message)}`;
+        statusMessages.appendChild(msg);
+        statusMessages.scrollTop = statusMessages.scrollHeight;
+      }
+
+      // Form submission with SSE
+      amazonForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const linksText = document.getElementById('amazon-links').value.trim();
+
+        if (!linksText) {
+          showError('Please paste at least one Amazon link.');
+          return;
+        }
+
+        const links = linksText.split('\n').filter(l => l.trim());
+
+        if (links.length > {{ max_links }}) {
+          showError(`Maximum ${max_links} links allowed.`);
+          return;
+        }
+
+        importBtn.disabled = true;
+        importBtn.textContent = 'Importing...';
+        progressSection.classList.add('active');
+
+        const formData = new FormData(amazonForm);
+
+        try {
+          const response = await fetch(amazonForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+            }
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            showError(error.error || 'Import failed');
+            importBtn.disabled = false;
+            importBtn.textContent = 'Start Import';
+            return;
+          }
+
+          // Read SSE stream
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          let results = [];
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n\n');
+            buffer = lines.pop();
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  handleSSEEvent(data, results);
+                } catch (e) {
+                  console.error('Failed to parse SSE data:', line);
+                }
+              }
+            }
+          }
+
+        } catch (error) {
+          console.error('Import error:', error);
+          showError('Import failed. Please try again.');
+          importBtn.disabled = false;
+          importBtn.textContent = 'Start Import';
+        }
+      });
+
+      function handleSSEEvent(data, results) {
+        if (data.status === 'complete') {
+          // All done, redirect to results page
+          const resultsParam = encodeURIComponent(JSON.stringify(data.results));
+          window.location.href = `{% url 'books:amazon-results' %}?results=${resultsParam}`;
+          return;
+        }
+
+        // Update progress
+        const percent = Math.round((data.index / data.total) * 100);
+        progressBar.style.width = `${percent}%`;
+        progressBar.textContent = `${percent}%`;
+        progressCount.textContent = `${data.index} / ${data.total}`;
+
+        // Truncate URL for display
+        const displayUrl = data.url.length > 60 ? data.url.substring(0, 60) + '...' : data.url;
+        currentLinkEl.textContent = `Processing: ${displayUrl}`;
+
+        // Add status message
+        if (data.status === 'processing') {
+          addStatusMessage(`Scraping ${displayUrl}...`, 'processing');
+        } else if (data.status === 'completed') {
+          addStatusMessage(`Created: ${data.book_title}`, 'success');
+        } else if (data.status === 'failed') {
+          addStatusMessage(`Failed: ${displayUrl} - ${data.error}`, 'error');
+        }
+
+        results.push(data);
+      }
+    })();
+</script>
+{% endblock scripts %}

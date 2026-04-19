@@ -21,6 +21,8 @@ class BookAdmin(admin.ModelAdmin):
         "price",
         "is_available",
         "display_tags",
+        "amazon_link_display",
+        "worldofbooks_link_display",
         "created_at",
         "updated_at",
     ]
@@ -33,6 +35,22 @@ class BookAdmin(admin.ModelAdmin):
     @admin.display(description="Tags")
     def display_tags(self, obj):
         return ", ".join(tag.name for tag in obj.tags.all())
+
+    @admin.display(description="Amazon Link")
+    def amazon_link_display(self, obj):
+        if obj.amazon_link:
+            return mark_safe(
+                f'<a href="{obj.amazon_link}" target="_blank">Amazon ↗</a>'
+            )
+        return "—"
+
+    @admin.display(description="World of Books Link")
+    def worldofbooks_link_display(self, obj):
+        if obj.worldofbooks_link:
+            return mark_safe(
+                f'<a href="{obj.worldofbooks_link}" target="_blank">WOB ↗</a>'
+            )
+        return "—"
 
     @admin.action(description="Mark selected books as available")
     def make_available(self, request, queryset):

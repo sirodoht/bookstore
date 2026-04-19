@@ -719,6 +719,78 @@ ul {
     opacity: 0.9;
 }
 
+/* External Links Container */
+.external-links {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.external-links .purchase-unit {
+    box-shadow: none;
+}
+
+@media (max-width: 600px) {
+    .external-links {
+        flex-direction: column;
+        width: 100%;
+    }
+}
+
+/* Amazon Buy Button - distinct styling */
+.buy-button.buy-amazon {
+    background: #ff9900;
+    color: #1a1a2e;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.buy-button.buy-amazon:hover {
+    background: #e88a00;
+}
+
+.buy-button.buy-amazon::before {
+    content: "↗";
+    font-weight: 700;
+    opacity: 0.9;
+}
+
+/* World of Books Buy Button - distinct styling */
+.buy-button.buy-worldofbooks {
+    background: #2d5a4a;
+    color: white;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.buy-button.buy-worldofbooks:hover {
+    background: #1f3f33;
+}
+
+.buy-button.buy-worldofbooks::before {
+    content: "↗";
+    font-weight: 700;
+    opacity: 0.9;
+}
+
+/* Affiliate Disclosure */
+.affiliate-disclosure {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    font-style: italic;
+}
+
 /* Empty State */
 .empty-message {
     text-align: center;

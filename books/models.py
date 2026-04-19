@@ -53,6 +53,16 @@ class Book(models.Model):
         null=True,
         help_text="Book cover image (will be cropped to 13:18 ratio)",
     )
+    amazon_link = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Amazon affiliate link for external purchase",
+    )
+    worldofbooks_link = models.URLField(
+        blank=True,
+        null=True,
+        help_text="World of Books affiliate link for external purchase",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField(Tag, blank=True, related_name="books")
