@@ -318,22 +318,23 @@ ul {
     background: var(--card-bg-alt);
 }
 
-/* Admin Bar */
-.admin-bar {
+/* Staff Bar */
+.staff-bar {
     margin: -12px 0 16px 0;
     display: flex;
     gap: 24px;
     align-items: center;
 }
 
-.admin-bar a {
+.staff-bar a {
     font-family: "JetBrains Mono", monospace;
     font-size: 0.75rem;
     color: var(--text-muted);
     border: none;
+    text-decoration: underline;
 }
 
-.admin-bar a:hover {
+.staff-bar a:hover {
     background: transparent;
     color: var(--accent-green);
 }

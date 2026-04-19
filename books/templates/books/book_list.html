@@ -6,11 +6,11 @@
 {% include "books/announcement_banner.html" %}
 
 {% if user.is_authenticated and user.is_staff %}
-<div class="admin-bar">
-    <a href="{% url 'books:book-create' %}">+ Add new book</a>
-    <a href="{% url 'books:batch-upload' %}">Batch upload</a>
-    <a href="/admin/books/book/">Books</a>
-    <a href="/admin/books/order/">Orders</a>
+<div class="staff-bar">
+    <a href="{% url 'books:book-create' %}">Add one book</a>
+    <a href="{% url 'books:batch-upload' %}">Add many books</a>
+    <a href="/admin/books/book/">List Books</a>
+    <a href="/admin/books/order/">List Orders</a>
 </div>
 {% endif %}
 
