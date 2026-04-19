@@ -1,11 +1,11 @@
 {% extends "books/staff_layout.html" %}
 
-{% block staff_title %}Add New Book{% endblock %}
+{% block staff_title %}Add one book{% endblock %}
 
 {% block staff_content %}
 <div class="form-container">
     <div class="page-header">
-        <h1 class="page-title">Add new book</h1>
+        <h1 class="page-title">Add one book</h1>
     </div>
 
     <div class="card">
@@ -44,17 +44,15 @@
                 </div>
             </div>
 
-            <div class="skip-image-wrapper">
-                <button
-                    type="button"
-                    class="btn btn-secondary skip-image-btn"
-                    id="skip-image-btn"
-                >
-                    Skip image analysis
-                </button>
-            </div>
+            <button
+                type="button"
+                class="btn btn-secondary skip-image-btn"
+                id="skip-image-btn"
+            >
+                Skip image analysis
+            </button>
 
-            <div class="hidden-fields" id="book-details-fields">
+            <div class="hidden-fields" id="book-details-fields" style="margin-top: 24px;">
                 <div
                     class="form-group {% if form.title.errors %}field-error{% endif %}"
                 >
