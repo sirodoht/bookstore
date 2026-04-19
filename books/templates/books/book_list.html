@@ -28,20 +28,41 @@
 <div class="filter-bar card card-alt">
     <div class="filter-group">
         <span class="filter-label">Title:</span>
-        <a href="?sort=title_asc" class="filter-toggle{% if sort == 'title_asc' %} active{% endif %}">A-Z</a>
-        <a href="?sort=title_desc" class="filter-toggle{% if sort == 'title_desc' %} active{% endif %}">Z-A</a>
+        <a href="?sort=title_asc{% if view == 'grid' %}&view=grid{% endif %}" class="filter-toggle{% if sort == 'title_asc' %} active{% endif %}">A-Z</a>
+        <a href="?sort=title_desc{% if view == 'grid' %}&view=grid{% endif %}" class="filter-toggle{% if sort == 'title_desc' %} active{% endif %}">Z-A</a>
     </div>
     <div class="filter-group">
         <span class="filter-label">Author:</span>
-        <a href="?sort=author_asc" class="filter-toggle{% if sort == 'author_asc' %} active{% endif %}">A-Z</a>
-        <a href="?sort=author_desc" class="filter-toggle{% if sort == 'author_desc' %} active{% endif %}">Z-A</a>
+        <a href="?sort=author_asc{% if view == 'grid' %}&view=grid{% endif %}" class="filter-toggle{% if sort == 'author_asc' %} active{% endif %}">A-Z</a>
+        <a href="?sort=author_desc{% if view == 'grid' %}&view=grid{% endif %}" class="filter-toggle{% if sort == 'author_desc' %} active{% endif %}">Z-A</a>
     </div>
     <div class="filter-group">
-        <a href="{% url 'books:book-list' %}" class="filter-clear{% if not sort %} active{% endif %}">Random</a>
+        <a href="{% url 'books:book-list' %}{% if view == 'grid' %}?view=grid{% endif %}" class="filter-clear{% if not sort %} active{% endif %}">Random</a>
+    </div>
+    <div class="filter-group view-toggle">
+        <a href="?{% if sort %}sort={{ sort }}{% endif %}" class="filter-toggle{% if view != 'grid' %} active{% endif %}">List</a>
+        <a href="?{% if sort %}sort={{ sort }}&{% endif %}view=grid" class="filter-toggle{% if view == 'grid' %} active{% endif %}">Grid</a>
     </div>
 </div>
 
 {% if books %}
+{% if view == 'grid' %}
+<div class="book-grid">
+    {% for book in books %}
+    <a href="{% url 'books:book-detail' book.pk %}" class="book-grid-item">
+        {% if book.cover_image %}
+        <div class="book-grid-cover">
+            <img src="{{ book.cover_image.url }}" alt="{{ book.title }} cover" />
+        </div>
+        {% else %}
+        <div class="book-grid-cover book-grid-cover-placeholder">
+            <span class="placeholder-icon">📚</span>
+        </div>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
 <div class="book-list">
     {% for book in books %}
     <div class="book-item">
@@ -104,6 +125,7 @@
     </div>
     {% endfor %}
 </div>
+{% endif %}
 {% else %}
 <div class="card">
     <p class="empty-message">No books available.</p>
