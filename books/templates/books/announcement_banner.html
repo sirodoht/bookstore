@@ -1,7 +1,7 @@
 {% if banner_books %}
     <div class="announcement-banner">
         <div class="banner-track">
-            {% for _ in "12" %}
+            {% for _ in "1234" %}
                 <div class="banner-group">
                 {% for book in banner_books %}
                     <a href="{% url 'books:book-detail' book.pk %}" class="banner-item">
