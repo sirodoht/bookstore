@@ -103,10 +103,8 @@
         }
 
         lightbox.addEventListener("click", function (e) {
-            if (e.target === lightbox) {
-                this.classList.remove("active");
-                lightboxImg.src = "";
-            }
+            this.classList.remove("active");
+            lightboxImg.src = "";
         });
 
         const closeBtn = document.querySelector(".lightbox-close");

@@ -577,7 +577,7 @@ ul {
     max-height: 90vh;
     object-fit: contain;
     border-radius: 4px;
-    cursor: default;
+    cursor: zoom-out;
 }
 
 .lightbox-close {
